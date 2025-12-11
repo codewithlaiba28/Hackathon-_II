@@ -1,30 +1,33 @@
-import { getToken } from './auth';
+import { authClient } from './auth-client';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Use proxy API route to communicate with backend through Better Auth session
+const PROXY_BASE_URL = '/api/proxy';
 
 class ApiClient {
-  private baseUrl: string;
+  private proxyBaseUrl: string;
 
   constructor() {
-    this.baseUrl = API_BASE_URL;
+    this.proxyBaseUrl = PROXY_BASE_URL;
   }
 
   private async request(endpoint: string, options: RequestInit = {}) {
-    const url = `${this.baseUrl}${endpoint}`;
-    const token = getToken();
+    // Extract the actual backend endpoint from the provided endpoint
+    // For example, if endpoint is '/api/tasks/', we need to pass 'api/tasks/' to the proxy
+    const backendEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
 
-    const headers = {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    };
+    const url = `${this.proxyBaseUrl}?endpoint=${encodeURIComponent(backendEndpoint)}`;
 
-    if (token) {
-      (headers as any)['Authorization'] = `Bearer ${token}`;
-    }
+    // Get JWT token from localStorage  
+    const jwtToken = typeof window !== 'undefined' ? localStorage.getItem('jwt_token') : null;
 
     const response = await fetch(url, {
       ...options,
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+        // Include JWT token in Authorization: Bearer header (REQUIREMENT 2!)
+        ...(jwtToken ? { 'Authorization': `Bearer ${jwtToken}` } : {}),
+        ...options.headers,
+      },
     });
 
     if (!response.ok) {
@@ -45,37 +48,18 @@ class ApiClient {
     return response.json();
   }
 
-  get = (endpoint: string) => this.request(endpoint, { method: 'GET' });
-  post = (endpoint: string, data: any) =>
+  get = async (endpoint: string) => this.request(endpoint, { method: 'GET' });
+  post = async (endpoint: string, data: any) =>
     this.request(endpoint, {
       method: 'POST',
       body: JSON.stringify(data)
     });
-  put = (endpoint: string, data: any) =>
+  put = async (endpoint: string, data: any) =>
     this.request(endpoint, {
       method: 'PUT',
       body: JSON.stringify(data)
     });
-  delete = (endpoint: string) => this.request(endpoint, { method: 'DELETE' });
-
-  // Authentication methods
-  login = (email: string, password: string) =>
-    this.request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password })
-    });
-
-  signup = (email: string, password: string, name?: string) =>
-    this.request('/api/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, name })
-    });
-
-  logout = (token: string) =>
-    this.request('/api/auth/logout', {
-      method: 'POST',
-      body: JSON.stringify({ token })
-    });
+  delete = async (endpoint: string) => this.request(endpoint, { method: 'DELETE' });
 }
 
 export const apiClient = new ApiClient();

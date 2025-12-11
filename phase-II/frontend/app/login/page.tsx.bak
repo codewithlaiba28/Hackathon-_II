@@ -18,51 +18,18 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Step 1: Login to backend to get JWT token
-      const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          username: email,
-          password: password
-        })
-      });
-
-      if (!backendResponse.ok) {
-        throw new Error('Invalid email or password');
-      }
-
-      const backendData = await backendResponse.json();
-
-      // Step 2: Create Better Auth session (frontend session management)
-      const authResult = await authClient.signIn.email({
+      // Use Better Auth client to sign in
+      const result = await authClient.signIn.email({
         email,
         password,
+        callbackURL: '/todo',
       });
 
-      if (authResult?.error) {
-        console.warn('Better Auth session warning:', authResult.error);
-        // Continue even if Better Auth fails - backend token is what matters for API calls
+      if (result?.error) {
+        throw new Error(result.error.message || 'Invalid email or password');
       }
 
-      // Step 3: Store backend JWT token (for Authorization: Bearer header)
-      localStorage.setItem('jwt_token', backendData.access_token);
-
-      // Step 4: Fetch and store user data
-      const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${backendData.access_token}`
-        }
-      });
-
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        localStorage.setItem('user', JSON.stringify(userData));
-      }
-
-      console.log('✅ Login successful - Better Auth session + Backend JWT token stored');
-
-      // Step 5: Redirect to todo
+      // The auth client handles session management
       router.push('/todo');
       router.refresh();
     } catch (err: any) {

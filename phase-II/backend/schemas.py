@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
-from .models import Task
+# Note: models import is not needed in schemas, removing relative import issue
 
 # User schemas
 class UserBase(BaseModel):
@@ -68,3 +68,7 @@ class LogoutResponse(BaseModel):
 
 class TokenData(BaseModel):
     user_id: str
+
+class BetterAuthSyncRequest(BaseModel):
+    email: str
+    name: Optional[str] = None

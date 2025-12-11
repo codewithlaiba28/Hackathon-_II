@@ -4,8 +4,10 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from typing import Optional
 from sqlmodel import Session
-from . import models, schemas, db
-from .db import get_session
+
+# Use relative imports - when running with uvicorn, the package structure should be maintained
+import models, schemas, db
+from db import get_session
 import os
 from passlib.context import CryptContext
 import logging
@@ -20,8 +22,8 @@ security = HTTPBearer()
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-# JWT configuration
-SECRET_KEY = os.getenv("JWT_SECRET", "c4f04665bdfd926af97a01aa5b67bf76")
+# Better Auth configuration - using shared secret for token verification
+SECRET_KEY = os.getenv("BETTER_AUTH_SECRET", "c4f04665bdfd926af97a01aa5b67bf76")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -59,21 +61,39 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 def decode_token(token: str) -> Optional[schemas.TokenData]:
     """
-    Decode and verify JWT token to extract user information.
-    This function implements the token verification step in the authentication flow.
+    Decode and verify token to extract user information.
+    This function should handle both Better Auth tokens and legacy JWT tokens.
     """
     try:
-        logger.info(f"Attempting to decode JWT token")
+        # Decode the token using the shared secret
+        logger.info(f"Attempting to decode token")
+        logger.info(f"Token being decoded: {token[:20] if token else 'None'}...")
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        logger.info(f"Decoded token payload: {payload}")
+
+        # Try to extract user ID from various possible fields
+        # Standard JWT field
         user_id: str = payload.get("sub")
+
+        # Alternative fields that might be present
         if user_id is None:
-            logger.warning("Token does not contain user ID in 'sub' field")
+            user_id = payload.get("user_id")
+        if user_id is None:
+            user_id = payload.get("id")
+        if user_id is None:
+            user_id = payload.get("userId")  # Some tokens might use this format
+
+        if user_id is not None:
+            token_data = schemas.TokenData(user_id=user_id)
+            logger.info(f"Successfully decoded token for user_id: {user_id}")
+            return token_data
+        else:
+            logger.warning("Token does not contain user ID in expected fields")
+            logger.warning(f"Available payload keys: {list(payload.keys()) if payload else 'None'}")
             return None
-        token_data = schemas.TokenData(user_id=user_id)
-        logger.info(f"Successfully decoded token for user_id: {user_id}")
-        return token_data
     except JWTError as e:
-        logger.error(f"JWT token verification failed: {str(e)}")
+        logger.error(f"Token verification failed: {str(e)}")
+        logger.error(f"JWT Error details: Token starts with: {token[:20] if token else 'None'}...")
         return None
     except Exception as e:
         logger.error(f"Unexpected error during token decoding: {str(e)}")
@@ -181,3 +201,50 @@ def logout(request: schemas.LogoutRequest):
     # In a real implementation, you might add the token to a blacklist
     # For now, we just return success
     return schemas.LogoutResponse(success=True)
+
+@router.post("/sync-better-auth-user", response_model=schemas.LoginResponse)
+def sync_better_auth_user(user_info: schemas.BetterAuthSyncRequest, session: Session = Depends(get_session)):
+    """
+    Synchronize a Better Auth user with our backend system.
+    This endpoint allows the frontend to create or get a JWT token for a Better Auth user.
+    """
+    logger.info(f"Syncing Better Auth user: {user_info.email}")
+
+    # Check if user already exists in our database
+    user = session.query(models.User).filter(models.User.email == user_info.email).first()
+
+    if user:
+        # User exists, update their info if needed and return JWT
+        if user_info.name and user.name != user_info.name:
+            user.name = user_info.name
+            session.add(user)
+            session.commit()
+    else:
+        # User doesn't exist, create new user
+        # Since we don't have the password from Better Auth, we'll create with a placeholder
+        # In a real implementation, you'd want to handle this differently
+        user = models.User(
+            email=user_info.email,
+            password=get_password_hash("better_auth_temp_password"),  # Placeholder password
+            name=user_info.name or user_info.email.split('@')[0]
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+
+    # Create and return JWT token for our backend
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.id},  # Store user_id in 'sub' field as required
+        expires_delta=access_token_expires
+    )
+
+    # Update last login time
+    user.last_login_at = datetime.utcnow()
+    session.add(user)
+    session.commit()
+
+    return schemas.LoginResponse(
+        token=access_token,
+        user=schemas.UserResponse.from_orm(user)
+    )

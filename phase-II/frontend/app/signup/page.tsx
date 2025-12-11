@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { apiClient } from '@/lib/api';
-import { setToken } from '@/lib/auth';
+import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 
 export default function SignupPage() {
@@ -31,27 +30,43 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // Use the proper signup endpoint
-      const response = await apiClient.signup(email, password);
-      const { token, user } = response;
+      // Step 1: Create user in backend and get JWT token
+      const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          password,
+          name: email.split('@')[0]
+        })
+      });
 
-      // Save token and user_id in localStorage
-      setToken(token, user.id);
-
-      // Redirect to todo page after successful signup/login
-      router.push('/todo');
-    } catch (err) {
-      if (err instanceof Error) {
-        if (err.message.includes('Email already registered')) {
-          setError('Error creating account. Email may already exist.');
-        } else {
-          setError(err.message || 'Error creating account. Please try again.');
-        }
-      } else {
-        setError('Error creating account. Please try again.');
+      if (!backendResponse.ok) {
+        const error = await backendResponse.json();
+        throw new Error(error.detail || 'Signup failed');
       }
+
+      const backendData = await backendResponse.json();
+
+      // Step 2: Create Better Auth session (frontend session management)
+      await authClient.signUp.email({
+        email,
+        password,
+        name: email.split('@')[0],
+      });
+
+      // Step 3: Store backend JWT token (for API Authorization headers)
+      localStorage.setItem('jwt_token', backendData.token);
+      localStorage.setItem('user', JSON.stringify(backendData.user));
+
+      console.log('✅ Signup successful - Better Auth session + Backend JWT token stored');
+
+      // Step 4: Redirect to todo
+      router.push('/todo');
+      router.refresh();
+    } catch (err: any) {
       console.error('Signup error:', err);
-    } finally {
+      setError(err.message || 'Error creating account. Please try again.');
       setLoading(false);
     }
   };

@@ -5,7 +5,8 @@ import sys
 BASE_URL = "http://localhost:8000"
 
 def test_signup():
-    email = "testuser_unique_123@example.com"
+    import random
+    email = f"testuser_{random.randint(1000, 9999)}@example.com"
     password = "password123"
     name = "Test User"
     

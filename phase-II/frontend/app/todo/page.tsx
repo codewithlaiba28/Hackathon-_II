@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { apiClient } from '@/lib/api';
-import { isAuthenticated, removeToken } from '@/lib/auth';
+import { authClient } from '@/lib/auth-client';
 import TaskList from '@/components/TaskList';
 import TaskForm from '@/components/TaskForm';
 
@@ -14,13 +14,36 @@ export default function TodoPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      router.push('/login');
-      return;
-    }
+    const checkAuthAndFetchTasks = async () => {
+      try {
+        // Check for JWT token in localStorage (primary auth check)
+        const jwtToken = localStorage.getItem('jwt_token');
 
-    fetchTasks();
-  }, []);
+        if (!jwtToken) {
+          console.log('No JWT token found, redirecting to login');
+          router.push('/login');
+          return;
+        }
+
+        // JWT token exists, check Better Auth session (optional, for frontend state)
+        const session = await authClient.getSession();
+        if (session?.session) {
+          console.log('✅ Both JWT token and Better Auth session present');
+        } else {
+          console.log('⚠️ JWT token present, Better Auth session missing - continuing with JWT');
+        }
+
+        // Fetch tasks using JWT token
+        fetchTasks();
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth check or fetch tasks failed', error);
+        router.push('/login');
+      }
+    };
+
+    checkAuthAndFetchTasks();
+  }, [router]);
 
   const fetchTasks = async () => {
     try {
@@ -28,6 +51,13 @@ export default function TodoPage() {
       setTasks(data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+      // If unauthorized, redirect to login
+      if (error instanceof Error &&
+        (error.message.includes('401') ||
+          error.message.includes('403') ||
+          error.message.includes('Could not validate credentials'))) {
+        router.push('/login');
+      }
     } finally {
       setLoading(false);
     }
@@ -39,6 +69,10 @@ export default function TodoPage() {
       setTasks([...tasks, newTask]);
     } catch (error) {
       console.error('Error adding task:', error);
+      // If unauthorized, redirect to login
+      if (error instanceof Error && error.message.includes('401')) {
+        router.push('/login');
+      }
     }
   };
 
@@ -48,6 +82,10 @@ export default function TodoPage() {
       setTasks(tasks.map(task => task.id === id ? updatedTask : task));
     } catch (error) {
       console.error('Error updating task:', error);
+      // If unauthorized, redirect to login
+      if (error instanceof Error && error.message.includes('401')) {
+        router.push('/login');
+      }
     }
   };
 
@@ -57,6 +95,10 @@ export default function TodoPage() {
       setTasks(tasks.filter(task => task.id !== id));
     } catch (error) {
       console.error('Error deleting task:', error);
+      // If unauthorized, redirect to login
+      if (error instanceof Error && error.message.includes('401')) {
+        router.push('/login');
+      }
     }
   };
 
@@ -71,12 +113,22 @@ export default function TodoPage() {
       }
     } catch (error) {
       console.error('Error toggling task:', error);
+      // If unauthorized, redirect to login
+      if (error instanceof Error && error.message.includes('401')) {
+        router.push('/login');
+      }
     }
   };
 
-  const handleLogout = () => {
-    removeToken();
-    router.push('/login');
+  const handleLogout = async () => {
+    try {
+      await authClient.signOut();
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Better Auth handles cleanup automatically
+      router.push('/login');
+    }
   };
 
   if (loading) {

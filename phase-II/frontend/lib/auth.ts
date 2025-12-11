@@ -1,57 +1,37 @@
 // lib/auth.ts
+import { authClient } from './auth-client';
 
-// Get token from localStorage
-export const getToken = (): string | null => {
+// Get token from custom auth client
+export const getToken = async (): Promise<string | null> => {
   if (typeof window !== 'undefined') {
-    return localStorage.getItem('token');
+    const session = await authClient.getSession();
+    const token = session?.session?.token || null;
+    console.log('Retrieved token from custom auth session:', token ? `${token.substring(0, 10)}...` : 'null');
+    return token;
   }
+  console.log('Window is not defined, returning null for token');
   return null;
 };
 
-// Save token to localStorage
-export const setToken = (token: string, userId: string): void => {
+// Remove token from custom auth client
+export const removeToken = async (): Promise<void> => {
   if (typeof window !== 'undefined') {
-    localStorage.setItem('token', token);
-    localStorage.setItem('userId', userId);
+    console.log('Removing token from custom auth session');
+    try {
+      await authClient.signOut();
+    } catch (error) {
+      console.error('Error during signOut:', error);
+      // Fallback to localStorage cleanup if signOut fails
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
+    }
+  } else {
+    console.log('Window is not defined, cannot remove token');
   }
-};
-
-// Remove token from localStorage
-export const removeToken = (): void => {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userId');
-  }
-};
-
-// Get user ID from localStorage
-export const getUserId = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('userId');
-  }
-  return null;
 };
 
 // Check if user is authenticated
-export const isAuthenticated = (): boolean => {
-  return getToken() !== null;
-};
-
-// Decode JWT token to extract user info
-export const decodeToken = (token: string): { user_id: string } | null => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-        .join('')
-    );
-
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Error decoding token:', error);
-    return null;
-  }
+export const isAuthenticated = async (): Promise<boolean> => {
+  const token = await getToken();
+  return token !== null;
 };

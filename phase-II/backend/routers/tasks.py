@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from typing import List
-from .. import auth
-from .. import models, schemas, db
-from ..db import get_session
+import auth
+from auth import get_current_user
+import models
+import schemas
+from db import get_session
 import logging
 
 # Set up logging
