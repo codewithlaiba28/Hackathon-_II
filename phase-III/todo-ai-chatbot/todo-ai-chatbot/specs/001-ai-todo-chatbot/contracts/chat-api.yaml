@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  title: AI Todo Chatbot API
+  version: 1.0.0
+  description: API for the AI Todo Chatbot with natural language task management
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  - url: https://api.todo-chatbot.com
+    description: Production server
+
+paths:
+  /api/{user_id}/chat:
+    post:
+      summary: Process user message and return AI response
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                conversation_id:
+                  type: string
+                  format: uuid
+                  description: Optional conversation ID to continue existing conversation
+                  nullable: true
+                message:
+                  type: string
+                  description: The user's message to process
+                  example: "Add a task to buy groceries"
+      responses:
+        '200':
+          description: Successfully processed message
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - conversation_id
+                  - response
+                properties:
+                  conversation_id:
+                    type: string
+                    format: uuid
+                    description: The conversation ID (newly created if not provided)
+                  response:
+                    type: string
+                    description: The AI assistant's response
+                    example: "I've added the task 'buy groceries' to your list."
+                  tool_calls:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: Name of the MCP tool called
+                        arguments:
+                          type: object
+                          description: Arguments passed to the tool
+                    description: List of MCP tools called during processing
+        '400':
+          description: Invalid request
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+
+  /api/users/{user_id}/tasks:
+    get:
+      summary: List user's tasks
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          required: false
+          description: Filter tasks by status
+          schema:
+            type: string
+            enum: [all, completed, pending]
+            default: all
+      responses:
+        '200':
+          description: Successfully retrieved tasks
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - tasks
+                properties:
+                  tasks:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Task'
+        '401':
+          description: Unauthorized access
+        '500':
+          description: Internal server error
+
+components:
+  schemas:
+    Task:
+      type: object
+      required:
+        - id
+        - title
+        - completed
+        - created_at
+        - user_id
+        - conversation_id
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the task
+        title:
+          type: string
+          description: Title of the task
+          example: "Buy groceries"
+        description:
+          type: string
+          description: Optional description of the task
+          example: "Milk, bread, eggs, and fruit"
+          nullable: true
+        completed:
+          type: boolean
+          description: Whether the task is completed
+          default: false
+        created_at:
+          type: string
+          format: date-time
+          description: When the task was created
+        updated_at:
+          type: string
+          format: date-time
+          description: When the task was last updated
+          nullable: true
+        user_id:
+          type: string
+          format: uuid
+          description: ID of the user who owns the task
+        conversation_id:
+          type: string
+          format: uuid
+          description: ID of the conversation where task was created

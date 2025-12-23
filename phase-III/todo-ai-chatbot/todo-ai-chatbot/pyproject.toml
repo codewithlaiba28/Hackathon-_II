@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "todo-ai-chatbot"
+version = "0.1.0"
+description = "AI-Powered Todo Chatbot with MCP Integration"
+authors = ["Your Name <your.email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+openai = "^1.0.0"
+fastapi = "^0.104.0"
+uvicorn = "^0.24.0"
+pydantic = "^2.5.0"
+pydantic-settings = "^2.0.0"
+sqlmodel = "^0.0.16"
+sqlalchemy = "^2.0.0"
+asyncpg = "^0.29.0"
+alembic = "^1.13.0"
+python-multipart = "^0.0.6"
+passlib = "^1.7.4"
+python-jose = "^3.3.0"
+redis = "^5.0.0"
+sse-starlette = "^1.6.1"
+pytz = "^2023.3"
+python-dotenv = "^1.0.0"
+mcp = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+pytest-cov = "^4.1.0"
+black = "^23.9.1"
+flake8 = "^6.0.0"
+mypy = "^1.5.1"
+isort = "^5.12.0"
+pre-commit = "^3.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
