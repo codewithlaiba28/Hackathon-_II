@@ -18,10 +18,10 @@ export const useAuth = () => {
     // Check current session on component mount
     const checkSession = async () => {
       try {
-        const session = await authClient.getSession();
-        if (session?.session) {
+        const { data } = await authClient.getSession();
+        if (data?.session) {
           setIsAuthenticated(true);
-          setUser(session.user);
+          setUser(data.user);
         } else {
           setIsAuthenticated(false);
           setUser(null);

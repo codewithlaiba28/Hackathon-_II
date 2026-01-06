@@ -6,8 +6,8 @@ import { isAuthenticated } from '@/lib/auth';
 export default function Hero() {
   const router = useRouter();
 
-  const handleGetStarted = () => {
-    if (isAuthenticated()) {
+  const handleGetStarted = async () => {
+    if (await isAuthenticated()) {
       router.push('/todo');
     } else {
       router.push('/login');

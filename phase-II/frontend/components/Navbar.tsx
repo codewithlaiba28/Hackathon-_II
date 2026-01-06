@@ -23,10 +23,10 @@ export default function Navbar({ scrolled, currentPath }: NavbarProps) {
         const jwtToken = localStorage.getItem('jwt_token');
 
         // Also check Better Auth session
-        const session = await authClient.getSession();
+        const { data } = await authClient.getSession();
 
         // User is authenticated if EITHER JWT token OR Better Auth session exists
-        setIsAuthenticated(!!(jwtToken || session?.session));
+        setIsAuthenticated(!!(jwtToken || data?.session));
       } catch (error) {
         console.error('Error checking auth status:', error);
         // Still check localStorage even if Better Auth fails
@@ -41,8 +41,8 @@ export default function Navbar({ scrolled, currentPath }: NavbarProps) {
     const handleStorageChange = async () => {
       try {
         const jwtToken = localStorage.getItem('jwt_token');
-        const session = await authClient.getSession();
-        setIsAuthenticated(!!(jwtToken || session?.session));
+        const { data } = await authClient.getSession();
+        setIsAuthenticated(!!(jwtToken || data?.session));
       } catch (error) {
         console.error('Error checking auth status on storage change:', error);
         const jwtToken = localStorage.getItem('jwt_token');
@@ -54,8 +54,8 @@ export default function Navbar({ scrolled, currentPath }: NavbarProps) {
     const handleFocus = async () => {
       try {
         const jwtToken = localStorage.getItem('jwt_token');
-        const session = await authClient.getSession();
-        setIsAuthenticated(!!(jwtToken || session?.session));
+        const { data } = await authClient.getSession();
+        setIsAuthenticated(!!(jwtToken || data?.session));
       } catch (error) {
         console.error('Error checking auth status on focus:', error);
         const jwtToken = localStorage.getItem('jwt_token');

@@ -26,8 +26,8 @@ export default function TodoPage() {
         }
 
         // JWT token exists, check Better Auth session (optional, for frontend state)
-        const session = await authClient.getSession();
-        if (session?.session) {
+        const { data } = await authClient.getSession();
+        if (data?.session) {
           console.log('✅ Both JWT token and Better Auth session present');
         } else {
           console.log('⚠️ JWT token present, Better Auth session missing - continuing with JWT');

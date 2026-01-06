@@ -4,8 +4,8 @@ import { authClient } from './auth-client';
 // Get token from custom auth client
 export const getToken = async (): Promise<string | null> => {
   if (typeof window !== 'undefined') {
-    const session = await authClient.getSession();
-    const token = session?.session?.token || null;
+    const { data } = await authClient.getSession();
+    const token = data?.session?.token || null;
     console.log('Retrieved token from custom auth session:', token ? `${token.substring(0, 10)}...` : 'null');
     return token;
   }
