@@ -17,8 +17,8 @@ else:
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
     
-    # create_engine for PostgreSQL
-    engine = create_engine(DATABASE_URL, echo=True)
+    # create_engine for PostgreSQL - for Neon, sslmode is usually required in the URL
+    engine = create_engine(DATABASE_URL, echo=True, pool_pre_ping=True)
 
 def get_session():
     with Session(engine) as session:

@@ -8,9 +8,10 @@ class User(SQLModel, table=True):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
     email: str = Field(unique=True, index=True)
     name: Optional[str] = Field(default=None)
-    password: str  # In production, store hashed passwords
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    last_login_at: Optional[datetime] = Field(default=None)
+    password: Optional[str] = Field(default=None)  # Optional for Better Auth users
+    emailVerified: bool = Field(default=False)
+    createdAt: datetime = Field(default_factory=datetime.utcnow)
+    updatedAt: datetime = Field(default_factory=datetime.utcnow)
 
     # Relationship to tasks
     tasks: List["Task"] = Relationship(back_populates="user")

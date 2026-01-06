@@ -1,10 +1,19 @@
 import { betterAuth } from 'better-auth';
+import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { db } from './db';
+import * as schema from './auth-schema';
 
-// Better Auth WITHOUT database - uses session tokens only
-// This eliminates all database adapter errors
 export const auth = betterAuth({
-    secret: process.env.BETTER_AUTH_SECRET || 'c4f04665bdfd926af97a01aa5b67bf76',
-    // NO DATABASE CONFIG - Better Auth will use stateless sessions
+    database: drizzleAdapter(db, {
+        provider: 'pg',
+        schema: {
+            user: schema.user,
+            session: schema.session,
+            account: schema.account,
+            verification: schema.verification,
+        },
+    }),
+    secret: process.env.BETTER_AUTH_SECRET,
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: false,
