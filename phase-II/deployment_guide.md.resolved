@@ -1,0 +1,48 @@
+# Deployment Guide
+
+To get your application live, we will use **Vercel** for the frontend and **Render** (or Vercel) for the backend. Since you are using **Neon PostgreSQL**, the database is already managed.
+
+## 1. Neon Database (Already set up)
+1. Log in to [Neon](https://neon.tech).
+2. Get your **Connection String** (looks like `postgres://user:pass@host/db`).
+3. Keep this ready as `DATABASE_URL`.
+
+---
+
+## 2. Backend Deployment (Render.com)
+Render is great for FastAPI because it stays "alive" better for background tasks.
+
+1. Create a new **Web Service** on Render and connect your GitHub repo.
+2. **Environment**: `Python 3`
+3. **Build Command**: `pip install -r backend/requirements.txt`
+4. **Start Command**: `uvicorn main:app --host 0.0.0.0 --port $PORT` (set root directory to `backend`)
+5. **Environment Variables**:
+   - `DATABASE_URL`: Your Neon string.
+   - `BETTER_AUTH_SECRET`: A long random string (e.g., `c4f04665bdfd926af97a01aa5b67bf76`).
+   - `JWT_SECRET`: Another random string for token signing.
+
+---
+
+## 3. Frontend Deployment (Vercel)
+Vercel is the best home for Next.js.
+
+1. Import your repo to Vercel.
+2. **Project Settings**:
+   - **Framework Preset**: Next.js
+   - **Root Directory**: `frontend`
+3. **Environment Variables**:
+   - `NEXT_PUBLIC_API_URL`: The URL of your **deployed backend** (e.g., `https://my-backend.onrender.com`).
+   - `BETTER_AUTH_SECRET`: Same one used in backend.
+   - `BETTER_AUTH_URL`: Your **frontend URL** (e.g., `https://my-todo.vercel.app`).
+4. Click **Deploy**.
+
+---
+
+## 4. Setting the URLs (The Final Step)
+Once both are deployed:
+1. Copy the **Vercel URL** (e.g., `https://todo-laiba.vercel.app`).
+2. Go to Render settings for the backend -> Update `CORS_ORIGINS` (if enforced) to include your Vercel URL.
+3. Update the **Frontend Environment Variable** `NEXT_PUBLIC_API_URL` on Vercel to point to the Render live URL.
+
+> [!TIP]
+> I have already prepared the `vercel.json` and updated the code to handle these URLs dynamically. You just need to paste the URLs into the dashboard!

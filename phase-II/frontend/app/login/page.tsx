@@ -21,12 +21,13 @@ export default function LoginPage() {
       // Step 1: Login to backend to get JWT token
       const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          username: email,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: email,
           password: password
         })
       });
+
 
       if (!backendResponse.ok) {
         throw new Error('Invalid email or password');
@@ -46,14 +47,16 @@ export default function LoginPage() {
       }
 
       // Step 3: Store backend JWT token (for Authorization: Bearer header)
-      localStorage.setItem('jwt_token', backendData.access_token);
+      localStorage.setItem('jwt_token', backendData.token);
+
 
       // Step 4: Fetch and store user data
       const userResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/me`, {
         headers: {
-          'Authorization': `Bearer ${backendData.access_token}`
+          'Authorization': `Bearer ${backendData.token}`
         }
       });
+
 
       if (userResponse.ok) {
         const userData = await userResponse.json();

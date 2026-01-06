@@ -5,11 +5,20 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Database URL - using SQLite for simplicity, can be changed to PostgreSQL in production
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
+# Database URL - prioritizes environment variable (e.g., from Neon)
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Create engine with async support
-engine = create_engine(DATABASE_URL, echo=True)
+if not DATABASE_URL:
+    # Use SQLite for local development if no DATABASE_URL is provided
+    DATABASE_URL = "sqlite:///./todo_app.db"
+    engine = create_engine(DATABASE_URL, echo=True)
+else:
+    # Handle PostgreSQL for Neon, ensuring SSL if needed
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    
+    # create_engine for PostgreSQL
+    engine = create_engine(DATABASE_URL, echo=True)
 
 def get_session():
     with Session(engine) as session:
