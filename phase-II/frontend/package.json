@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@libsql/client": "^0.15.15",
+    "@neondatabase/serverless": "^0.10.4",
     "better-auth": "^1.4.6",
     "better-sqlite3": "^12.5.0",
     "drizzle-kit": "^0.31.8",
     "drizzle-orm": "^0.45.1",
     "next": "16.0.8",
+    "pg": "^8.13.1",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },
