@@ -46,21 +46,39 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body = await request.json();
+    const contentType = request.headers.get('Content-Type') || 'application/json';
+    let body;
+
+    // Handle different content types for the body
+    if (contentType.includes('application/x-www-form-urlencoded')) {
+      body = await request.text();
+    } else {
+      const jsonBody = await request.json();
+      body = JSON.stringify(jsonBody);
+    }
+
     const authHeader = request.headers.get('Authorization');
     let jwtToken = authHeader?.replace('Bearer ', '');
 
-    if (!jwtToken) {
+    // Allow login and signup without a token
+    const isPublicEndpoint = backendEndpoint.includes('api/auth/login') || backendEndpoint.includes('api/auth/signup');
+
+    if (!jwtToken && !isPublicEndpoint) {
       return Response.json({ error: 'No authentication token provided' }, { status: 401 });
+    }
+
+    const headers: Record<string, string> = {
+      'Content-Type': contentType,
+    };
+
+    if (jwtToken) {
+      headers['Authorization'] = `Bearer ${jwtToken}`;
     }
 
     const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/${backendEndpoint}`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${jwtToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
+      headers,
+      body,
     });
 
     const data = await backendResponse.json();
@@ -70,6 +88,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Backend request failed' }, { status: 500 });
   }
 }
+
 
 export async function PUT(request: NextRequest) {
   const { searchParams } = new URL(request.url);

@@ -31,7 +31,8 @@ export default function SignupPage() {
 
     try {
       // Step 1: Create user in backend and get JWT token
-      const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/auth/signup`, {
+      // Using proxy to avoid CORS issues in production
+      const backendResponse = await fetch(`/api/proxy?endpoint=api/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -62,8 +63,8 @@ export default function SignupPage() {
       console.log('✅ Signup successful - Better Auth session + Backend JWT token stored');
 
       // Step 4: Redirect to todo
-      router.push('/todo');
-      router.refresh();
+      window.location.href = '/todo';
+
     } catch (err: any) {
       console.error('Signup error:', err);
       setError(err.message || 'Error creating account. Please try again.');

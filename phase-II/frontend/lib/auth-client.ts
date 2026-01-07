@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createAuthClient } from 'better-auth/react';
-import { auth } from './better-auth';
+
 
 // Initialize Better Auth client
 export const authClient = createAuthClient({
