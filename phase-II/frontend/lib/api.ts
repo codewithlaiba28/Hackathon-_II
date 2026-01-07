@@ -26,7 +26,8 @@ class ApiClient {
     }
 
     // Normalize endpoint - Phase II requires /api/{user_id}/tasks
-    const url = `${BACKEND_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const baseUrl = BACKEND_URL.replace(/\/$/, '');
+    const url = `${baseUrl}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
 
     console.log(`🚀 API Request: ${options.method || 'GET'} ${url}`);
 

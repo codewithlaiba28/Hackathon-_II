@@ -24,6 +24,7 @@ allowed_origins = [
     "http://localhost:3000",
     "https://hackathon-ii-frontend.vercel.app",
     "https://hackahton-ii-phase-ii.vercel.app",
+    "https://hackathon-ii-phase-ii-frontend.vercel.app",
     "http://localhost:3001" # Added local development alternative
 ]
 
