@@ -17,8 +17,8 @@ class UserUpdate(BaseModel):
 
 class UserResponse(UserBase):
     id: str
-    created_at: datetime
-    last_login_at: Optional[datetime] = None
+    createdAt: datetime
+    updatedAt: datetime
 
     class Config:
         from_attributes = True

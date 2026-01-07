@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,53 +20,19 @@ export default function LoginPage() {
     setError('');
 
     try {
-      // Step 1: Login to backend to get JWT token
-      // Using proxy to avoid CORS issues in production
-      const backendResponse = await fetch(`/api/proxy?endpoint=api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          password: password
-        })
-      });
-
-      if (!backendResponse.ok) {
-        throw new Error('Invalid email or password');
-      }
-
-      const backendData = await backendResponse.json();
-
-      // Step 2: Create Better Auth session (frontend session management)
-      const authResult = await authClient.signIn.email({
+      // Sign in with Better Auth
+      const { data, error: authError } = await authClient.signIn.email({
         email,
         password,
       });
 
-      if (authResult?.error) {
-        console.warn('Better Auth session warning:', authResult.error);
-        // Continue even if Better Auth fails - backend token is what matters for API calls
+      if (authError) {
+        throw new Error(authError.message || 'Login failed');
       }
 
-      // Step 3: Store backend JWT token (for Authorization: Bearer header)
-      localStorage.setItem('jwt_token', backendData.token);
-
-      // Step 4: Fetch and store user data
-      const userResponse = await fetch(`/api/proxy?endpoint=api/auth/me`, {
-        headers: {
-          'Authorization': `Bearer ${backendData.token}`
-        }
-      });
-
-      if (userResponse.ok) {
-        const userData = await userResponse.json();
-        localStorage.setItem('user', JSON.stringify(userData));
-      }
-
-      console.log('✅ Login successful - Better Auth session + Backend JWT token stored');
-
-      // Step 5: Redirect to todo
-      window.location.href = '/todo';
+      console.log('✅ Login successful');
+      router.push('/todo');
+      router.refresh();
 
     } catch (err: any) {
       setError(err.message || 'Invalid email or password');
@@ -74,7 +42,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-gray-900 to-red-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-red-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
@@ -126,7 +94,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-linear-to-r from-red-600 to-red-900 hover:from-red-700 hover:to-red-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-all duration-300 transform hover:scale-105"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-red-600 to-red-900 hover:from-red-700 hover:to-red-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-all duration-300 transform hover:scale-105"
             >
               {loading ? 'Signing in...' : 'Sign in'}
             </button>

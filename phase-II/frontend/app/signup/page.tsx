@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { authClient } from '@/lib/auth-client';
 import Link from 'next/link';
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
 export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,40 +32,20 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // Step 1: Create user in backend and get JWT token
-      // Using proxy to avoid CORS issues in production
-      const backendResponse = await fetch(`/api/proxy?endpoint=api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          password,
-          name: email.split('@')[0]
-        })
-      });
-
-      if (!backendResponse.ok) {
-        const error = await backendResponse.json();
-        throw new Error(error.detail || 'Signup failed');
-      }
-
-      const backendData = await backendResponse.json();
-
-      // Step 2: Create Better Auth session (frontend session management)
-      await authClient.signUp.email({
+      // Sign up with Better Auth
+      const { data, error: authError } = await authClient.signUp.email({
         email,
         password,
         name: email.split('@')[0],
       });
 
-      // Step 3: Store backend JWT token (for API Authorization headers)
-      localStorage.setItem('jwt_token', backendData.token);
-      localStorage.setItem('user', JSON.stringify(backendData.user));
+      if (authError) {
+        throw new Error(authError.message || 'Signup failed');
+      }
 
-      console.log('✅ Signup successful - Better Auth session + Backend JWT token stored');
-
-      // Step 4: Redirect to todo
-      window.location.href = '/todo';
+      console.log('✅ Signup successful');
+      router.push('/todo');
+      router.refresh();
 
     } catch (err: any) {
       console.error('Signup error:', err);
@@ -73,7 +55,7 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-black via-gray-900 to-red-950 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-red-950 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-white">
@@ -141,7 +123,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-linear-to-r from-red-600 to-red-900 hover:from-red-700 hover:to-red-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-all duration-300 transform hover:scale-105"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-red-600 to-red-900 hover:from-red-700 hover:to-red-950 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 transition-all duration-300 transform hover:scale-105"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>

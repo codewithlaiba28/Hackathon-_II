@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { removeToken } from '@/lib/auth';
 import { authClient } from '@/lib/auth-client';
 
 interface NavbarProps {
@@ -12,84 +11,18 @@ interface NavbarProps {
 }
 
 export default function Navbar({ scrolled, currentPath }: NavbarProps) {
-  const [isAuthenticatedUser, setIsAuthenticated] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    // Check authentication status on component mount
-    const checkAuth = async () => {
-      try {
-        // Check for JWT token in localStorage (primary auth indicator)
-        const jwtToken = localStorage.getItem('jwt_token');
-
-        // Also check Better Auth session
-        const { data } = await authClient.getSession();
-
-        // User is authenticated if EITHER JWT token OR Better Auth session exists
-        setIsAuthenticated(!!(jwtToken || data?.session));
-      } catch (error) {
-        console.error('Error checking auth status:', error);
-        // Still check localStorage even if Better Auth fails
-        const jwtToken = localStorage.getItem('jwt_token');
-        setIsAuthenticated(!!jwtToken);
-      }
-    };
-
-    checkAuth();
-
-    // Add event listener for storage changes (in case auth state changes from other tabs)
-    const handleStorageChange = async () => {
-      try {
-        const jwtToken = localStorage.getItem('jwt_token');
-        const { data } = await authClient.getSession();
-        setIsAuthenticated(!!(jwtToken || data?.session));
-      } catch (error) {
-        console.error('Error checking auth status on storage change:', error);
-        const jwtToken = localStorage.getItem('jwt_token');
-        setIsAuthenticated(!!jwtToken);
-      }
-    };
-
-    // Add focus event to re-check auth state when user returns to the page
-    const handleFocus = async () => {
-      try {
-        const jwtToken = localStorage.getItem('jwt_token');
-        const { data } = await authClient.getSession();
-        setIsAuthenticated(!!(jwtToken || data?.session));
-      } catch (error) {
-        console.error('Error checking auth status on focus:', error);
-        const jwtToken = localStorage.getItem('jwt_token');
-        setIsAuthenticated(!!jwtToken);
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, []);
+  const session = authClient.useSession();
+  const isAuthenticatedUser = !!session.data;
 
   const handleLogout = async () => {
     try {
-      // Sign out from Better Auth
       await authClient.signOut();
-
-      // Clear JWT token and user data from localStorage
-      localStorage.removeItem('jwt_token');
-      localStorage.removeItem('user');
-
-      setIsAuthenticated(false);
+      localStorage.clear();
       router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Fallback: clear localStorage even if Better Auth fails
-      localStorage.removeItem('jwt_token');
-      localStorage.removeItem('user');
-      removeToken();
-      setIsAuthenticated(false);
+      localStorage.clear();
       router.push('/login');
     }
   };

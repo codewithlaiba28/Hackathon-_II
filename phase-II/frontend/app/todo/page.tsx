@@ -12,50 +12,29 @@ export default function TodoPage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const session = authClient.useSession();
+  const user = session.data?.user;
 
   useEffect(() => {
-    const checkAuthAndFetchTasks = async () => {
-      try {
-        // Check for JWT token in localStorage (primary auth check)
-        const jwtToken = localStorage.getItem('jwt_token');
+    if (session.isPending) return;
 
-        if (!jwtToken) {
-          console.log('No JWT token found, redirecting to login');
-          router.push('/login');
-          return;
-        }
+    if (!session.data) {
+      console.log('No session found, redirecting to login');
+      router.push('/login');
+      return;
+    }
 
-        // JWT token exists, check Better Auth session (optional, for frontend state)
-        const { data } = await authClient.getSession();
-        if (data?.session) {
-          console.log('✅ Both JWT token and Better Auth session present');
-        } else {
-          console.log('⚠️ JWT token present, Better Auth session missing - continuing with JWT');
-        }
-
-        // Fetch tasks using JWT token
-        fetchTasks();
-        setLoading(false);
-      } catch (error) {
-        console.error('Auth check or fetch tasks failed', error);
-        router.push('/login');
-      }
-    };
-
-    checkAuthAndFetchTasks();
-  }, [router]);
+    fetchTasks();
+  }, [session.isPending, session.data, router]);
 
   const fetchTasks = async () => {
+    if (!user?.id) return;
     try {
-      const data = await apiClient.get('/api/tasks/');
+      const data = await apiClient.getTasks(user.id);
       setTasks(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching tasks:', error);
-      // If unauthorized, redirect to login
-      if (error instanceof Error &&
-        (error.message.includes('401') ||
-          error.message.includes('403') ||
-          error.message.includes('Could not validate credentials'))) {
+      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
         router.push('/login');
       }
     } finally {
@@ -64,77 +43,60 @@ export default function TodoPage() {
   };
 
   const handleAddTask = async (taskData: { title: string; description?: string }) => {
+    if (!user?.id) return;
     try {
-      const newTask = await apiClient.post('/api/tasks/', taskData);
+      const newTask = await apiClient.createTask(user.id, taskData);
       setTasks([...tasks, newTask]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding task:', error);
-      // If unauthorized, redirect to login
-      if (error instanceof Error && error.message.includes('401')) {
-        router.push('/login');
-      }
     }
   };
 
   const handleUpdateTask = async (id: string, taskData: { title?: string; description?: string; status?: string }) => {
+    if (!user?.id) return;
     try {
-      const updatedTask = await apiClient.put(`/api/tasks/${id}`, taskData);
+      const updatedTask = await apiClient.updateTask(user.id, id, taskData);
       setTasks(tasks.map(task => task.id === id ? updatedTask : task));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating task:', error);
-      // If unauthorized, redirect to login
-      if (error instanceof Error && error.message.includes('401')) {
-        router.push('/login');
-      }
     }
   };
 
   const handleDeleteTask = async (id: string) => {
+    if (!user?.id) return;
     try {
-      await apiClient.delete(`/api/tasks/${id}`);
+      await apiClient.deleteTask(user.id, id);
       setTasks(tasks.filter(task => task.id !== id));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error deleting task:', error);
-      // If unauthorized, redirect to login
-      if (error instanceof Error && error.message.includes('401')) {
-        router.push('/login');
-      }
     }
   };
 
   const handleToggleTask = async (id: string) => {
+    if (!user?.id) return;
     try {
-      const task = tasks.find(t => t.id === id);
-      if (task) {
-        const updatedTask = await apiClient.put(`/api/tasks/${id}`, {
-          status: task.status === 'pending' ? 'completed' : 'pending'
-        });
-        setTasks(tasks.map(task => task.id === id ? updatedTask : task));
-      }
-    } catch (error) {
+      const updatedTask = await apiClient.toggleTask(user.id, id);
+      setTasks(tasks.map(task => task.id === id ? updatedTask : task));
+    } catch (error: any) {
       console.error('Error toggling task:', error);
-      // If unauthorized, redirect to login
-      if (error instanceof Error && error.message.includes('401')) {
-        router.push('/login');
-      }
     }
   };
 
   const handleLogout = async () => {
     try {
       await authClient.signOut();
+      localStorage.clear(); // Clear any remaining legacy items
       router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
-      // Better Auth handles cleanup automatically
       router.push('/login');
     }
   };
 
-  if (loading) {
+  if (session.isPending || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-2xl">Loading...</div>
+        <div className="text-2xl text-white">Loading...</div>
       </div>
     );
   }
@@ -158,6 +120,7 @@ export default function TodoPage() {
               Back to Home
             </Link>
             <h1 className="text-3xl font-bold text-white">Todo App</h1>
+            {user && <p className="text-gray-400 text-sm mt-1">Logged in as {user.email}</p>}
           </div>
           <button
             onClick={handleLogout}
