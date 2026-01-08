@@ -2,7 +2,7 @@
 
 export default function Contact() {
     return (
-        <section id="contact" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <section id="contact" className="py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center mb-16">
                     <h2 className="text-sm font-bold text-primary uppercase tracking-[0.3em] mb-4">Support</h2>

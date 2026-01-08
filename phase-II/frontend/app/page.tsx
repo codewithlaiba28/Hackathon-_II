@@ -30,7 +30,7 @@ export default function LandingPage() {
       <div className="relative z-10">
         <Hero />
 
-        <div className="space-y-40 pb-40">
+        <div className="space-y-20 pb-20">
           <About />
           <Features />
           <HowItWorks />

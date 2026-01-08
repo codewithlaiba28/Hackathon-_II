@@ -56,9 +56,9 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed left-0 top-0 h-full w-20 lg:w-24 glass border-r border-white/5 z-50 flex flex-col items-center py-8">
+    <nav className="fixed left-0 top-0 h-full w-20 lg:w-24 glass border-r border-white/5 z-50 flex flex-col items-center py-6">
       {/* Refined Premium Logo Section */}
-      <Link href="/" className="mb-12 group relative">
+      <Link href="/" className="mb-8 group relative focus:outline-none">
         <div className="w-12 h-12 primary-gradient rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 shadow-[0_0_20px_rgba(16,185,129,0.3)] group-hover:shadow-[0_0_40px_rgba(16,185,129,0.5)] overflow-hidden">
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-black/10 backdrop-blur-[2px]"></div>
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-zinc-950 relative z-10 transform group-hover:rotate-12 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -69,19 +69,19 @@ export default function Navbar() {
       </Link>
 
       {/* Main Nav Links */}
-      <div className="flex-1 flex flex-col space-y-8 w-full px-2">
+      <div className="flex-1 flex flex-col space-y-3 w-full px-2">
         {menuItems.map((item) => {
           const isActive = pathname === item.path;
           return (
             <Link
               key={item.name}
               href={item.path}
-              className={`flex flex-col items-center justify-center py-3 rounded-2xl transition-all duration-300 group ${isActive ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
+              className={`flex flex-col items-center justify-center py-2.5 rounded-2xl transition-all duration-300 group focus:outline-none ${isActive ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}
             >
               <div className={`transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-primary' : ''}`}>
                 {item.icon}
               </div>
-              <span className={`text-[9px] font-bold mt-2 tracking-widest ${isActive ? 'text-white' : 'text-zinc-500'}`}>
+              <span className={`text-[9px] font-bold mt-1.5 tracking-widest ${isActive ? 'text-white' : 'text-zinc-500'}`}>
                 {item.name}
               </span>
             </Link>
@@ -90,17 +90,17 @@ export default function Navbar() {
       </div>
 
       {/* Bottom Actions */}
-      <div className="mt-auto flex flex-col items-center space-y-6 w-full px-2">
+      <div className="mt-auto flex flex-col items-center space-y-4 w-full px-2">
         {session ? (
           <>
             <button
               onClick={handleLogout}
-              className="flex flex-col items-center justify-center py-3 w-full rounded-2xl text-zinc-500 hover:text-red-400 hover:bg-red-500/5 transition-all group"
+              className="flex flex-col items-center justify-center py-2.5 w-full rounded-2xl text-zinc-500 hover:text-red-400 hover:bg-red-500/5 transition-all group focus:outline-none"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
               </svg>
-              <span className="text-[9px] font-bold mt-2 tracking-widest">LOGOUT</span>
+              <span className="text-[9px] font-bold mt-1.5 tracking-widest">LOGOUT</span>
             </button>
 
             <div className="relative group p-0.5 rounded-full primary-gradient cursor-pointer">

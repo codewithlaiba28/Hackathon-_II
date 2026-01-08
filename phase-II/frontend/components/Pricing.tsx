@@ -30,7 +30,7 @@ export default function Pricing() {
     ];
 
     return (
-        <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 relative">
+        <section id="pricing" className="py-16 px-4 sm:px-6 lg:px-8 relative">
             <div className="max-w-7xl mx-auto relative z-10">
                 <div className="text-center mb-20 space-y-4">
                     <div className="inline-block px-4 py-1.5 rounded-full bg-zinc-900 border border-white/5 text-[10px] font-bold text-primary uppercase tracking-[0.3em] mb-4">

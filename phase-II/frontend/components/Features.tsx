@@ -59,7 +59,7 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 relative">
+    <section id="features" className="py-16 px-4 sm:px-6 lg:px-8 relative">
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20">
           <h2 className="text-sm font-bold text-primary uppercase tracking-[0.3em] mb-4">Core Capabilities</h2>

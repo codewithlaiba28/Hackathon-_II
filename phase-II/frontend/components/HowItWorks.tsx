@@ -35,7 +35,7 @@ export default function HowItWorks() {
     ];
 
     return (
-        <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <section id="how-it-works" className="py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
             {/* Background Decorative Elements */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl opacity-[0.03] pointer-events-none">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--primary)_0%,transparent_70%)]"></div>
