@@ -1,32 +1,33 @@
 from sqlmodel import create_engine, Session
-from models import User, Task  # Import models to register them
+from models import User, Task
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# Database URL - using SQLite for simplicity, can be changed to PostgreSQL in production
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
+# Get DATABASE_URL
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Create engine settings based on database type
-connect_args = {}
-if DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
-elif DATABASE_URL.startswith("postgresql"):
-    # Neon frequently requires SSL
-    if "sslmode" not in DATABASE_URL:
-        if "?" in DATABASE_URL:
-            DATABASE_URL += "&sslmode=require"
-        else:
-            DATABASE_URL += "?sslmode=require"
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required!")
+
+# Handle postgres:// vs postgresql:// (Neon sometimes uses postgres://)
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Ensure SSL is enabled for Neon
+if DATABASE_URL.startswith("postgresql") and "sslmode" not in DATABASE_URL:
+    if "?" in DATABASE_URL:
+        DATABASE_URL += "&sslmode=require"
+    else:
+        DATABASE_URL += "?sslmode=require"
 
 # Create engine
 engine = create_engine(
     DATABASE_URL, 
-    echo=True, 
-    connect_args=connect_args,
-    # Add pooling for PostgreSQL
-    pool_pre_ping=True if DATABASE_URL.startswith("postgresql") else False
+    echo=True,
+    pool_pre_ping=True,
+    pool_recycle=300,  # Recycle connections after 5 minutes (good for Neon)
 )
 
 def get_session():
