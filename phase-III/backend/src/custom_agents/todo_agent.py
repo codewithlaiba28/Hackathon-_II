@@ -92,11 +92,27 @@ Quick Actions:
 - Delete task: use delete_task(user_id, task_id)
 - Update task: use update_task(user_id, task_id, title, description)
 
+IMPORTANT - Finding Task by Name:
+When user mentions a task by NAME (not ID) for delete/complete/update:
+1. FIRST call list_tasks(user_id, "all") to get all tasks
+2. FIND the task ID by matching the task title/name
+3. THEN call the appropriate action (delete_task/complete_task/update_task) with that ID
+
+Examples:
+- User: "Delete buy milk task" 
+  → Call list_tasks first, find "buy milk" task ID, then delete_task(user_id, found_id)
+  
+- User: "Mark groceries as complete"
+  → Call list_tasks first, find "groceries" task ID, then complete_task(user_id, found_id)
+  
+- User: "Edit the meeting task to call mom"
+  → Call list_tasks first, find "meeting" task ID, then update_task(user_id, found_id, "call mom")
+
 Response Style:
 - Keep responses SHORT and friendly (1-2 sentences max)
-- Use emojis for a friendly touch ✅ 📝 🎯
+- Use emojis for a friendly touch ✅ 📝 🎯 🗑️
 - Confirm actions immediately
-- If task not found, suggest listing tasks
+- If task not found after listing, tell user the exact task names available
 
 ALWAYS use user_id '{self.user_id}' in all tool calls.""",
             mcp_servers=[server],
