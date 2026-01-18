@@ -28,11 +28,17 @@ class TodoAgent:
         self.user_id = user_id
         
         # Robust DB URL handling
+        # Robust DB URL handling for both local and Vercel
         if db_url.startswith("sqlite:///./"):
+            # If on Vercel, sqlite won't work for persistence, but we handle path for completeness
             rel_path = db_url.replace("sqlite:///./", "")
-            root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-            abs_path = os.path.abspath(os.path.join(root_dir, rel_path))
-            self.db_url = f"sqlite:///{abs_path}"
+            if os.getenv("VERCEL_REGION"):
+                # On Vercel, files are usually in the current working directory or /var/task
+                self.db_url = f"sqlite:///{os.path.join(os.getcwd(), rel_path)}"
+            else:
+                root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+                abs_path = os.path.abspath(os.path.join(root_dir, rel_path))
+                self.db_url = f"sqlite:///{abs_path}"
         else:
             self.db_url = db_url
             
@@ -139,9 +145,20 @@ ALWAYS use user_id '{self.user_id}' in all tool calls.""",
         import sys
         
         # Path to the MCP server main.py
-        
-        root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-        mcp_src_dir = os.path.join(root_dir, "mcp-servers", "todo-tools", "src")
+        if os.getenv("VERCEL_REGION"):
+            # On Vercel, paths are relative to the deployment root
+            root_dir = os.getcwd()
+            # If backend is in a 'backend' folder, root_dir might be one level up or same level
+            # We assume monorepo root deployment
+            mcp_src_dir = os.path.join(root_dir, "mcp-servers", "todo-tools", "src")
+            # If the above fails, try relative to current script in the bundled /var/task
+            if not os.path.exists(mcp_src_dir):
+                script_dir = os.path.dirname(os.path.abspath(__file__)) # .../backend/src/custom_agents
+                mcp_src_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))), "mcp-servers", "todo-tools", "src")
+        else:
+            root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            mcp_src_dir = os.path.join(root_dir, "mcp-servers", "todo-tools", "src")
+            
         mcp_script_path = os.path.join(mcp_src_dir, "main.py")
         
         async with await self.get_mcp_server(mcp_script_path, mcp_src_dir) as server:
