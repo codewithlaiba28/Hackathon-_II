@@ -13,12 +13,12 @@ set_tracing_disabled(True)
 # Use Chat Completions API instead of Responses API (required for non-OpenAI providers)
 set_default_openai_api("chat_completions")
 
-# Patch MCP timeout for slow environment
+# Patch MCP timeout for faster responses
 import mcp.shared.session
 import datetime
 original_send_request = mcp.shared.session.BaseSession.send_request
 async def patched_send_request(self, *args, **kwargs):
-    kwargs['request_read_timeout_seconds'] = datetime.timedelta(seconds=120)
+    kwargs['request_read_timeout_seconds'] = datetime.timedelta(seconds=30)  # Reduced for faster responses
     return await original_send_request(self, *args, **kwargs)
 mcp.shared.session.BaseSession.send_request = patched_send_request
 
@@ -43,17 +43,20 @@ class TodoAgent:
             
         self.base_url = os.getenv("CEREBRAS_BASE_URL", "https://api.cerebras.ai/v1")
         
-        # Create AsyncOpenAI client pointing to Gemini
+        # Create AsyncOpenAI client with timeout for faster responses
         # Using verify=False to avoid SSL issues on Windows
         import httpx
         self.client = AsyncOpenAI(
             api_key=self.api_key,
             base_url=self.base_url,
-            http_client=httpx.AsyncClient(verify=False)
+            http_client=httpx.AsyncClient(
+                verify=False,
+                timeout=30.0  # 30 second timeout for faster responses
+            )
         )
         
-        # Use Cerebras model
-        self.model_name = os.getenv("CEREBRAS_MODEL", "gpt-oss-120b")
+        # Use faster Cerebras model (llama3.1-8b is much faster than gpt-oss-120b)
+        self.model_name = os.getenv("CEREBRAS_MODEL", "llama3.1-8b")
         self.model = OpenAIChatCompletionsModel(
             model=self.model_name,  
             openai_client=self.client
@@ -80,21 +83,22 @@ class TodoAgent:
     async def get_agent(self, server):
         return Agent(
             name="Todo Assistant",
-            instructions=f"""You are a helpful AI assistant that manages todo tasks for user '{self.user_id}'.
-            
-            Follow these behavior rules based on user intent:
-            - Task Creation: When user mentions adding, creating, remembering, or needing to do something, use `add_task`.
-            - Task Listing: When user asks to see, show, list, or check tasks, use `list_tasks` with appropriate status filter:
-                - "all": user wants to see everything.
-                - "pending": user asks what's left, what's pending, or what's not done.
-                - "completed": user asks what's finished or what has been completed.
-            - Task Completion: When user says done, complete, finished, or marks a task as done, use `complete_task`.
-            - Task Deletion: When user says delete, remove, or cancel a task, use `delete_task`. If the task is mentioned by name, you may need to `list_tasks` first to find the ID.
-            - Task Update: When user says change, update, rename, or modify a task, use `update_task`.
-            
-            Always confirm actions with a friendly, natural response (e.g., "I've added the task for you!" or "Task 3 is now marked as complete.").
-            ALWAYS provide the `user_id` '{self.user_id}' when calling any tool.
-            Gracefully handle task not found and other errors.""",
+            instructions=f"""You are a friendly todo assistant for user '{self.user_id}'. Be concise and helpful.
+
+Quick Actions:
+- Add task: use add_task(user_id, title, description)
+- List tasks: use list_tasks(user_id, status) - status: "all", "pending", or "completed"
+- Complete task: use complete_task(user_id, task_id)
+- Delete task: use delete_task(user_id, task_id)
+- Update task: use update_task(user_id, task_id, title, description)
+
+Response Style:
+- Keep responses SHORT and friendly (1-2 sentences max)
+- Use emojis for a friendly touch ✅ 📝 🎯
+- Confirm actions immediately
+- If task not found, suggest listing tasks
+
+ALWAYS use user_id '{self.user_id}' in all tool calls.""",
             mcp_servers=[server],
             model=self.model
         )
@@ -115,9 +119,9 @@ class TodoAgent:
         async with await self.get_mcp_server(mcp_script_path, mcp_src_dir) as server:
             agent = await self.get_agent(server)
 
-            # Exponential backoff retry logic
-            max_retries = 5
-            base_delay = 5  # seconds (increased for Gemini rate limits)
+            # Exponential backoff retry logic (optimized for speed)
+            max_retries = 3  # Reduced retries for faster failure
+            base_delay = 2  # seconds (faster retry for better UX)
             
             for attempt in range(max_retries):
                 try:
