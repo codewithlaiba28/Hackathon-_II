@@ -1,10 +1,16 @@
 import sys
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import asyncio
+
+# Path fix for Vercel/Serverless
+current_dir = os.path.dirname(os.path.abspath(__file__))
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
 from routers import tasks
 import auth
-import os
-import asyncio
 
 # Fix for Windows asyncio loop with httpx/ssl
 if sys.platform == 'win32':
