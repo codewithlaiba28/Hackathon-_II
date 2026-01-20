@@ -4,20 +4,14 @@
         {
             "src": "main.py",
             "use": "@vercel/python",
-            "config": { "runtime": "python3.11" }
+            "config": {
+                "runtime": "python3.11"
+            }
         }
     ],
     "routes": [
         {
-            "src": "/api/auth/(.*)",
-            "dest": "main.py"
-        },
-        {
             "src": "/api/(.*)",
-            "dest": "main.py"
-        },
-        {
-            "src": "/(.*)",
             "dest": "main.py"
         }
     ]

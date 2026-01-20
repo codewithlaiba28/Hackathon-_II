@@ -22,6 +22,7 @@ import logging
 load_dotenv()
 
 # Set up logging
+IS_VERCEL = os.getenv("VERCEL_REGION") is not None
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

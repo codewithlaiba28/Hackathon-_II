@@ -2,29 +2,37 @@ import sys
 import os
 import logging
 
-# Configure file logging at the very top before other imports
-log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp_debug.log")
+# Configure logging
+# On Vercel, we can't write to files, so we use stream logging only
+IS_VERCEL = os.getenv("VERCEL_REGION") is not None
 
-# Create file handler
-fh = logging.FileHandler(log_file)
-fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+if not IS_VERCEL:
+    # Configure file logging at the very top before other imports
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mcp_debug.log")
 
-# Configure root logger
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.INFO) # Use INFO for root to avoid asyncio debug spam
-for handler in root_logger.handlers[:]:
-    root_logger.removeHandler(handler)
-root_logger.addHandler(fh)
+    # Create file handler
+    fh = logging.FileHandler(log_file)
+    fh.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 
-# Redirect stderr to the log file as well
-class StderrLogger:
-    def write(self, message):
-        if message.strip():
-            root_logger.error(f"STDERR: {message.strip()}")
-    def flush(self):
-        pass
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO) # Use INFO for root to avoid asyncio debug spam
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    root_logger.addHandler(fh)
 
-sys.stderr = StderrLogger()
+    # Redirect stderr to the log file as well
+    class StderrLogger:
+        def write(self, message):
+            if message.strip():
+                root_logger.error(f"STDERR: {message.strip()}")
+        def flush(self):
+            pass
+
+    sys.stderr = StderrLogger()
+else:
+    # On Vercel, just use basic logging to stdout/stderr
+    logging.basicConfig(level=logging.INFO)
 
 import asyncio
 
