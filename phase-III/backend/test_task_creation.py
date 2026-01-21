@@ -11,10 +11,34 @@ load_dotenv()
 from src.custom_agents.todo_agent import TodoAgent
 
 async def run_test():
+    # Force UTF-8 for Windows console
+    if sys.platform == 'win32' and hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8')
+        
     print("Initializing TodoAgent...")
     try:
         db_url = os.getenv("DATABASE_URL")
         user_id = "test_user_66"
+        
+        print(f"DEBUG: Using DB URL: {db_url}")
+        
+        # Create test user to satisfy foreign key constraint
+        from sqlmodel import Session, create_engine, select
+        from models import User
+        engine = create_engine(db_url)
+        with Session(engine) as session:
+            existing_user = session.get(User, user_id)
+            print(f"DEBUG: Check for user {user_id}: {existing_user}")
+            
+            if not existing_user:
+                print(f"DEBUG: Creating user {user_id}...")
+                user = User(id=user_id, email="test_task_creation_66@example.com", name="Test User")
+                session.add(user)
+                session.commit()
+                print(f"Created test user {user_id}")
+            else:
+                print(f"DEBUG: User {user_id} already exists.")
+        
         agent = TodoAgent(user_id=user_id, db_url=db_url)
         print(f"TodoAgent initialized for user {user_id}.")
         
@@ -24,7 +48,10 @@ async def run_test():
         response = await agent.run(test_message, history=[])
         print("Agent run successful!")
         print("Response:", response["response"])
-        print("Tool Calls:", response["tool_calls"])
+        print(f"Tool Calls ({len(response['tool_calls'])}):")
+        for tc in response['tool_calls']:
+            print(f" - Name: '{tc['name']}'")
+            print(f" - Args: {tc['arguments']}")
         
         # Verify in DB
         from sqlmodel import Session, create_engine, select

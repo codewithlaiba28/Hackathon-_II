@@ -32,7 +32,12 @@ class Task(SQLModel, table=True):
     user_id: str = Field(foreign_key="user.id", index=True)
     title: str
     description: Optional[str] = Field(default=None)
-    completed: bool = Field(default=False)
+    status: str = Field(default="pending")
+    
+    @property
+    def completed(self) -> bool:
+        return self.status == "completed"
+
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

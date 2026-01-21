@@ -1,6 +1,6 @@
 import { authClient } from './auth-client';
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 class ApiClient {
   private async request(endpoint: string, options: RequestInit = {}) {
@@ -9,7 +9,7 @@ class ApiClient {
 
     try {
       // Call the /token endpoint to get JWT
-      const tokenResponse = await fetch(`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/api/auth/token`, {
+      const tokenResponse = await fetch(`${typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:3000'}/api/auth/token`, {
         credentials: 'include',
       });
 
@@ -31,27 +31,35 @@ class ApiClient {
 
     console.log(`🚀 API Request: ${options.method || 'GET'} ${url}`);
 
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-        ...options.headers,
-      },
-    });
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          ...options.headers,
+        },
+      });
 
-    if (!response.ok) {
-      let errorMessage = `HTTP error! status: ${response.status}`;
-      try {
-        const errorData = await response.json();
-        errorMessage = errorData.detail || errorMessage;
-      } catch (e) {
-        console.warn('Could not parse error response');
+      if (!response.ok) {
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (e) {
+          console.warn('Could not parse error response');
+        }
+        throw new Error(errorMessage);
       }
-      throw new Error(errorMessage);
-    }
 
-    return response.json();
+      return response.json();
+    } catch (error: any) {
+      console.error(`❌ Fetch failed for ${url}:`, error);
+      if (error instanceof TypeError && error.message === 'Failed to fetch') {
+        console.error('This is likely a CORS error or the backend is not reachable.');
+      }
+      throw error;
+    }
   }
 
   // Helper to construct path with user_id as per Phase II

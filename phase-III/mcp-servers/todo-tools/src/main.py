@@ -50,15 +50,20 @@ logger = logging.getLogger("mcp-server")
 logger.info(f"DEBUG: MCP script starting, log file: {log_file}")
 
 # Model - table=True must be set for SQLModel to use it as a table
+# Model - table=True must be set for SQLModel to use it as a table
 class Task(SQLModel, table=True):
     __tablename__ = "task" # Match backend model table name
     id: Optional[int] = Field(default=None, primary_key=True, sa_column_kwargs={"autoincrement": True})
     user_id: str = Field(index=True)
     title: str
     description: Optional[str] = Field(default=None)
-    completed: bool = Field(default=False)
+    status: str = Field(default="pending")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    @property
+    def completed(self) -> bool:
+        return self.status == "completed"
 
 # Request/Result Models
 class AddTaskResult(BaseModel):
@@ -70,6 +75,7 @@ class TaskInfo(BaseModel):
     id: int
     title: str
     completed: bool
+    status: str
 
 class UpdateTaskResult(BaseModel):
     task_id: int
@@ -97,12 +103,12 @@ def add_task(user_id: str, title: str, description: Optional[str] = None) -> Add
     logger.info(f"add_task tool called for user {user_id}: {title}")
     try:
         with Session(engine) as session:
-            task = Task(title=title, description=description, user_id=user_id, completed=False)
+            task = Task(title=title, description=description, user_id=user_id, status="pending")
             session.add(task)
             session.commit()
             session.refresh(task)
             logger.info(f"Task created with ID {task.id}")
-            return AddTaskResult(task_id=task.id, status="created", title=task.title)
+            return AddTaskResult(task_id=task.id, status=task.status, title=task.title)
     except Exception as e:
         logger.error(f"Error in add_task: {str(e)}", exc_info=True)
         raise
@@ -114,11 +120,11 @@ def list_tasks(user_id: str, status: Optional[str] = "all") -> List[TaskInfo]:
         with Session(engine) as session:
             query = select(Task).where(Task.user_id == user_id)
             if status == "pending":
-                query = query.where(Task.completed == False)
+                query = query.where(Task.status == "pending")
             elif status == "completed":
-                query = query.where(Task.completed == True)
+                query = query.where(Task.status == "completed")
             tasks = session.exec(query).all()
-            return [TaskInfo(id=task.id, title=task.title, completed=task.completed) for task in tasks]
+            return [TaskInfo(id=task.id, title=task.title, completed=(task.status == "completed"), status=task.status) for task in tasks]
     except Exception as e:
         logger.error(f"Error in list_tasks: {str(e)}", exc_info=True)
         raise
@@ -138,7 +144,7 @@ def update_task(user_id: str, task_id: int, title: Optional[str] = None, descrip
         session.add(task)
         session.commit()
         session.refresh(task)
-        return UpdateTaskResult(task_id=task.id, status="updated", title=task.title)
+        return UpdateTaskResult(task_id=task.id, status=task.status, title=task.title)
 
 @mcp.tool(description="Mark a task as complete")
 def complete_task(user_id: str, task_id: int) -> CompleteTaskResult:
@@ -147,11 +153,11 @@ def complete_task(user_id: str, task_id: int) -> CompleteTaskResult:
         task = session.exec(select(Task).where(Task.id == task_id).where(Task.user_id == user_id)).first()
         if not task:
             raise Exception("Task not found")
-        task.completed = True
+        task.status = "completed"
         session.add(task)
         session.commit()
         session.refresh(task)
-        return CompleteTaskResult(task_id=task.id, status="completed", title=task.title)
+        return CompleteTaskResult(task_id=task.id, status=task.status, title=task.title)
 
 @mcp.tool(description="Remove a task from the list")
 def delete_task(user_id: str, task_id: int) -> DeleteTaskResult:

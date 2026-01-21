@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Make request to backend with JWT token
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/${backendEndpoint}`, {
+    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/${backendEndpoint}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${jwtToken}`,
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
       headers['Authorization'] = `Bearer ${jwtToken}`;
     }
 
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/${backendEndpoint}`, {
+    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/${backendEndpoint}`, {
       method: 'POST',
       headers,
       body,
@@ -107,7 +107,7 @@ export async function PUT(request: NextRequest) {
       return Response.json({ error: 'No authentication token provided' }, { status: 401 });
     }
 
-    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/${backendEndpoint}`, {
+    const backendResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000'}/${backendEndpoint}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${jwtToken}`,

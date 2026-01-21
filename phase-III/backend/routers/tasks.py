@@ -124,8 +124,15 @@ def toggle_task_complete(
     if not db_task or db_task.user_id != user_id:
         raise HTTPException(status_code=404, detail="Task not found")
 
-    db_task.completed = not db_task.completed
-    db_task.status = "completed" if db_task.completed else "pending"
+    
+    # Toggle based on current status
+    if db_task.status == "completed":
+        db_task.status = "pending"
+    else:
+        db_task.status = "completed"
+        
+    # Phase III spec: Ensure we don't rely on 'completed' boolean anymore
+    # db_task.completed = (db_task.status == "completed") # Removed for compatibility
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
