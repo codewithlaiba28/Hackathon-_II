@@ -15,6 +15,12 @@ export const auth = betterAuth({
             jwks: schema.jwks,
         },
     }),
+    // Base URL is REQUIRED for production deployments
+    baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+    // Trusted origins for CORS
+    trustedOrigins: process.env.BETTER_AUTH_URL
+        ? [process.env.BETTER_AUTH_URL]
+        : ['http://localhost:3000'],
     secret: process.env.BETTER_AUTH_SECRET,
     emailAndPassword: {
         enabled: true,
