@@ -35,24 +35,64 @@ const ChatbotSidebar: React.FC = () => {
         setInput('');
         setIsLoading(true);
 
+        // Add a placeholder assistant message that we'll update
+        setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+        const assistantMsgIndex = messages.length + 1; // +1 because we just added userMessage
+
         try {
-            const response = await apiClient.sendChatMessage(user.id, userMessage.content, conversationId);
+            const response = await apiClient.sendChatMessageStream(user.id, userMessage.content, conversationId);
 
-            setMessages(prev => [...prev, { role: 'assistant', content: response.response }]);
-            setConversationId(response.conversation_id);
+            if (!response.body) throw new Error('No response body');
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedContent = '';
 
-            // Check if any tools were called that might require a UI refresh
-            if (response.tool_calls && response.tool_calls.length > 0) {
-                const toolNames = response.tool_calls.map((tc: any) => tc.name);
-                const destructiveTools = ['add_task', 'complete_task', 'delete_task', 'update_task'];
-                if (toolNames.some((name: string) => destructiveTools.includes(name))) {
-                    // Dispatch custom event to notify other components to refresh tasks
-                    window.dispatchEvent(new CustomEvent('tasks-updated'));
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+
+                            if (data.type === 'metadata') {
+                                setConversationId(data.conversation_id);
+                            } else if (data.type === 'content') {
+                                accumulatedContent += data.content;
+                                setMessages(prev => {
+                                    const newMessages = [...prev];
+                                    const lastMsg = newMessages[newMessages.length - 1];
+                                    if (lastMsg.role === 'assistant') {
+                                        lastMsg.content = accumulatedContent;
+                                    }
+                                    return newMessages;
+                                });
+                            } else if (data.type === 'tool_call') {
+                                // Notify tasks update if a tool was called
+                                window.dispatchEvent(new CustomEvent('tasks-updated'));
+                            } else if (data.type === 'error') {
+                                console.error('Stream error:', data.error);
+                            }
+                        } catch (e) {
+                            // Incomplete JSON or other parse error
+                        }
+                    }
                 }
             }
         } catch (error) {
             console.error('Chat error:', error);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Sorry, I encountered an error. Please try again.' }]);
+            setMessages(prev => {
+                const newMessages = [...prev];
+                const lastMsg = newMessages[newMessages.length - 1];
+                if (lastMsg.role === 'assistant' && !lastMsg.content) {
+                    lastMsg.content = 'Sorry, I encountered an error. Please try again.';
+                }
+                return newMessages;
+            });
         } finally {
             setIsLoading(false);
         }
@@ -116,25 +156,19 @@ const ChatbotSidebar: React.FC = () => {
                         {messages.map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
-                                        ? 'bg-emerald-600 text-white rounded-tr-none shadow-lg'
-                                        : 'bg-zinc-900 text-zinc-300 border border-white/5 rounded-tl-none'
+                                    ? 'bg-emerald-600 text-white rounded-tr-none shadow-lg'
+                                    : 'bg-zinc-900 text-zinc-300 border border-white/5 rounded-tl-none'
                                     }`}>
-                                    {msg.content}
+                                    {msg.content === '' && msg.role === 'assistant' && isLoading ? (
+                                        <div className="flex space-x-2 py-1">
+                                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
+                                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-100"></div>
+                                            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-200"></div>
+                                        </div>
+                                    ) : msg.content}
                                 </div>
                             </div>
                         ))}
-
-                        {isLoading && (
-                            <div className="flex justify-start">
-                                <div className="bg-zinc-900 border border-white/5 p-4 rounded-2xl rounded-tl-none">
-                                    <div className="flex space-x-2">
-                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce"></div>
-                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-100"></div>
-                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce delay-200"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                         <div ref={messagesEndRef} />
                     </div>
 

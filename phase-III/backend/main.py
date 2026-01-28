@@ -25,7 +25,7 @@ if sys.platform == 'win32':
 
 # Set up logging
 IS_VERCEL = os.getenv("VERCEL_REGION") is not None
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO if IS_VERCEL else logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 from routers import tasks
@@ -33,26 +33,28 @@ from db import engine
 from sqlmodel import SQLModel
 import auth
 
-# Create database tables
-SQLModel.metadata.create_all(engine)
+# Create database tables (only if not on Vercel to save startup time, or run once)
+# On Neon/PostgreSQL, tables should be pre-created by init_db.py
+if not IS_VERCEL:
+    SQLModel.metadata.create_all(engine)
 
 app = FastAPI(
-    title="Todo API",
-    description="API for the Todo application",
-    version="2.0.0"
+    title="Todo AI API",
+    description="Stateless API with MCP for Todo Chatbot",
+    version="3.0.0"
 )
 
 # Add CORS middleware
 allowed_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    os.getenv("FRONTEND_URL", "https://todo-chat.vercel.app"),
-    "https://todo-chat.vercel.app"
+    os.getenv("FRONTEND_URL", "*"), # Allow any frontend in development or specified URL
+    "https://*.vercel.app" # Broad allow for Vercel preview/production urls
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=["*"] if not IS_VERCEL else allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

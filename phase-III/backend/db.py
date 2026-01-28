@@ -5,8 +5,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Database URL - using SQLite for simplicity, can be changed to PostgreSQL in production
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Database URL - Prioritize environment variable, fallback to SQLite only if missing
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
 
 # Create engine settings based on database type
 connect_args = {}
@@ -23,10 +23,12 @@ elif DATABASE_URL.startswith("postgresql"):
 # Create engine
 engine = create_engine(
     DATABASE_URL, 
-    echo=True, 
+    echo=False, # Set to False for production speed
     connect_args=connect_args,
-    # Add pooling for PostgreSQL
-    pool_pre_ping=True if DATABASE_URL.startswith("postgresql") else False
+    # Add pooling for PostgreSQL to handle multiple concurrent chatbot requests
+    pool_pre_ping=True if DATABASE_URL.startswith("postgresql") else False,
+    pool_size=5 if DATABASE_URL.startswith("postgresql") else None,
+    max_overflow=10 if DATABASE_URL.startswith("postgresql") else None
 )
 
 def get_session():

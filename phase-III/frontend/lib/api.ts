@@ -34,6 +34,7 @@ class ApiClient {
     try {
       const response = await fetch(url, {
         ...options,
+        cache: 'no-store', // Disable caching for all requests to ensure fresh data
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -99,6 +100,32 @@ class ApiClient {
         conversation_id: conversationId
       })
     });
+
+  sendChatMessageStream = async (userId: string, message: string, conversationId?: number) => {
+    // Get JWT token
+    let token: string | null = null;
+    try {
+      const tokenResponse = await fetch(`${typeof window !== 'undefined' ? window.location.origin : 'http://127.0.0.1:3000'}/api/auth/token`, {
+        credentials: 'include',
+      });
+      if (tokenResponse.ok) {
+        const tokenData = await tokenResponse.json();
+        token = tokenData.token;
+      }
+    } catch (e) { console.error(e); }
+
+    if (!token) throw new Error('Unauthorized');
+
+    const baseUrl = BACKEND_URL.replace(/\/$/, '');
+    return fetch(`${baseUrl}/api/${userId}/chat/stream`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ message, conversation_id: conversationId })
+    });
+  };
 }
 
 export const apiClient = new ApiClient();

@@ -215,3 +215,32 @@ ALWAYS use user_id '{self.user_id}' in all tool calls.""",
             
             # If we get here, all retries failed
             raise Exception("Max retries exceeded due to rate limiting")
+
+    async def run_streamed(self, message: str, history: List[Dict[str, str]] = None):
+        """
+        Stream the agent response with the given message and history.
+        """
+        import sys
+        
+        # Path logic (consolidated)
+        if os.getenv("VERCEL_REGION"):
+            root_dir = os.getcwd()
+            mcp_src_dir = os.path.join(root_dir, "mcp-servers", "todo-tools", "src")
+            if not os.path.exists(mcp_src_dir):
+                script_dir = os.path.dirname(os.path.abspath(__file__))
+                mcp_src_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(script_dir))), "mcp-servers", "todo-tools", "src")
+        else:
+            root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+            mcp_src_dir = os.path.join(root_dir, "mcp-servers", "todo-tools", "src")
+            
+        mcp_script_path = os.path.join(mcp_src_dir, "main.py")
+        
+        async with await self.get_mcp_server(mcp_script_path, mcp_src_dir) as server:
+            agent = await self.get_agent(server)
+            full_input = (history or []) + [{"role": "user", "content": message}]
+            
+            # OpenAI Agents SDK Runner.run_streamed returns a RunResultStreaming object
+            # We must call .stream_events() to get the async iterator
+            result = Runner.run_streamed(agent, full_input)
+            async for event in result.stream_events():
+                yield event

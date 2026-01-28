@@ -30,6 +30,9 @@ def get_tasks(
     logger.info(f"Fetching tasks for user ID: {user_id}")
     query = select(models.Task).where(models.Task.user_id == user_id)
     tasks = session.exec(query).all()
+    logger.info(f"Retrieved {len(tasks)} tasks for user {user_id}")
+    for t in tasks:
+        logger.debug(f"Task {t.id}: {t.status}")
     return tasks
 
 
@@ -120,22 +123,31 @@ def toggle_task_complete(
     if current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    db_task = session.get(models.Task, task_id)
+    logger.info(f"Toggling task {task_id} for user {user_id}")
+    # Convert string task_id to int if necessary for database lookup
+    try:
+        db_task_id = int(task_id) if isinstance(task_id, str) else task_id
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid task ID format")
+        
+    db_task = session.get(models.Task, db_task_id)
     if not db_task or db_task.user_id != user_id:
+        logger.warning(f"Task {task_id} not found for user {user_id}")
         raise HTTPException(status_code=404, detail="Task not found")
 
-    
+    old_status = db_task.status
     # Toggle based on current status
     if db_task.status == "completed":
         db_task.status = "pending"
     else:
         db_task.status = "completed"
         
-    # Phase III spec: Ensure we don't rely on 'completed' boolean anymore
-    # db_task.completed = (db_task.status == "completed") # Removed for compatibility
+    logger.info(f"Task {task_id} status changing from {old_status} to {db_task.status}")
+    
     session.add(db_task)
     session.commit()
     session.refresh(db_task)
+    logger.info(f"Task {task_id} toggle committed. New status: {db_task.status}")
     return db_task
 
 

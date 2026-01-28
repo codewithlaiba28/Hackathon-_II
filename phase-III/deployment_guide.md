@@ -1,65 +1,47 @@
-# Vercel Deployment Guide - Phase III Todo AI Chatbot
+# 🚀 Complete Vercel Deployment Setup (Monorepo)
 
-This guide provides step-by-step instructions for deploying the Todo AI Chatbot. We use a **dual-project strategy**: one Vercel project for the FastAPI backend and another for the Next.js frontend.
+This guide provide the ONE-CLICK deployment setup for Phase III. By using the root `vercel.json`, both your Frontend (Next.js) and Backend (FastAPI) will live in the same project.
 
-## 🚀 Prerequisite: Database Setup
+## 🛠️ Step 1: Database Setup (Neon PostgreSQL)
+Vercel is stateless; SQLite won't save your data.
+1. Create a free project at [Neon.tech](https://neon.tech).
+2. Copy your **Connection String**:
+   `postgresql://user:pass@ep-cool-name.us-east-1.aws.neon.tech/neondb?sslmode=require`
+3. **Important**: Ensure `?sslmode=require` is at the end.
 
-Vercel functions are stateless and the filesystem is read-only. **SQLite will not work**.
-1. Create a free PostgreSQL database on [Neon.tech](https://neon.tech).
-2. Copy the **Connection String** (e.g., `postgresql://user:pass@ep-cool-name.us-east-2.aws.neon.tech/neondb?sslmode=require`).
-3. You will use this as `DATABASE_URL` in both projects.
-
----
-
-## 🛠️ Step 1: Backend Deployment (FastAPI)
-
-1. Go to your [Vercel Dashboard](https://vercel.com/dashboard) and click **Add New > Project**.
-2. Connect your GitHub repository.
+## 🛠️ Step 2: Vercel Project Configuration
+1. Go to [Vercel](https://vercel.com/dashboard) -> **Add New** -> **Project**.
+2. Select your GitHub Repository.
 3. **Configure Project**:
-   - **Project Name**: `todo-api`
-   - **Root Directory**: `phase-III` (Vercel will detect `vercel.json` and `backend/main.py`)
-4. **Environment Variables**:
-   | Variable | Value |
-   |----------|-------|
-   | `DATABASE_URL` | Your Neon Connection String |
-   | `CEREBRAS_API_KEY` | Your Cerebras API Key |
-   | `BETTER_AUTH_SECRET` | A random 32-character string |
-   | `CEREBRAS_BASE_URL` | `https://api.cerebras.ai/v1` |
-   | `CEREBRAS_MODEL` | `llama3.1-8b` |
-5. Click **Deploy**.
-6. Once deployed, note your **Production URL** (e.g., `https://todo-api.vercel.app`).
+   - **Framework Preset**: `Next.js` (Vercel will detect it).
+   - **Root Directory**: `phase-III` (This is crucial, set it to the root of Phase III).
+4. **Environment Variables**: Add these exact keys:
+
+| Variable | Recommended Value |
+|----------|-------|
+| `DATABASE_URL` | Your Neon Connection String |
+| `CEREBRAS_API_KEY` | Your Cerebras API Key |
+| `BETTER_AUTH_SECRET` | A random 32-character string |
+| `BETTER_AUTH_URL` | `https://your-app-name.vercel.app` |
+| `NEXT_PUBLIC_API_URL` | `https://your-app-name.vercel.app` (Same as above) |
+
+## 🛠️ Step 3: Deployment
+1. Click **Deploy**.
+2. Vercel will build your Next.js frontend and your FastAPI backend simultaneously.
 
 ---
 
-## 💻 Step 2: Frontend Deployment (Next.js)
-
-1. Go to Vercel Dashboard again and click **Add New > Project**.
-2. Select the **same** GitHub repository.
-3. **Configure Project**:
-   - **Project Name**: `todo-chat`
-   - **Root Directory**: `phase-III/frontend`
-   - **Framework Preset**: Next.js
-4. **Environment Variables**:
-   | Variable | Value |
-   |----------|-------|
-   | `NEXT_PUBLIC_API_URL` | `https://todo-api.vercel.app` (From Step 1) |
-   | `DATABASE_URL` | Your Neon Connection String |
-   | `BETTER_AUTH_SECRET` | Same string used in Step 1 |
-   | `BETTER_AUTH_URL` | `https://todo-chat.vercel.app` (This project's URL) |
-5. Click **Deploy**.
+## ✅ Post-Deployment Checklist
+- [ ] **Health Check**: Visit `https://your-app.vercel.app/api/health`. Should return `{"status": "healthy"}`.
+- [ ] **Auth Sync**: Log in/Sign up. If it works, Better Auth is correctly hitting Neon.
+- [ ] **Chat Speed**: Type "Add task 'Finish Hackathon'". You should see the response **stream** in instantly.
 
 ---
 
-## 🧪 Verification & Health Check
+## 🔧 Why this works (The Setup)
+- **Unified Routing**: The root `vercel.json` routes `/api/(.*)` to the Python backend and everything else to Next.js.
+- **Stateless Persistence**: All data (Tasks, Conversations, Messages) is stored in Neon, so server restarts won't lose history.
+- **CORS-Free**: Since both live on the same domain, you won't face CORS "Failed to fetch" errors.
 
-1. **Backend**: Visit `https://todo-api.vercel.app/api/health`. Should return `{"status": "healthy"}`.
-2. **Database**: The app will automatically create tables on first run. 
-3. **Frontend**: Open your frontend URL, sign up, and try adding a task via the chatbot.
-
----
-
-## ⚠️ Troubleshooting
-
-- **CORS Errors**: Ensure `NEXT_PUBLIC_API_URL` in the frontend setup matches the backend URL exactly (with `https://` and no trailing slash).
-- **Infinite Loading**: Check if the `DATABASE_URL` includes `?sslmode=require`. Neon requires SSL for connections from Vercel.
-- **Auth Issues**: Ensure `BETTER_AUTH_SECRET` is identical in both projects.
+> [!TIP]
+> **Proactive Troubleshooting**: If you see "Internal Server Error", check the Vercel **Function Logs**. Most likely the `DATABASE_URL` is missing the SSL parameter.
