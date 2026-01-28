@@ -16,11 +16,12 @@ export const auth = betterAuth({
         },
     }),
     // Base URL is REQUIRED for production deployments
-    baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+    baseURL: process.env.BETTER_AUTH_URL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'),
     // Trusted origins for CORS
-    trustedOrigins: process.env.BETTER_AUTH_URL
-        ? [process.env.BETTER_AUTH_URL]
-        : ['http://localhost:3000'],
+    trustedOrigins: [
+        process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+    ],
     secret: process.env.BETTER_AUTH_SECRET,
     emailAndPassword: {
         enabled: true,

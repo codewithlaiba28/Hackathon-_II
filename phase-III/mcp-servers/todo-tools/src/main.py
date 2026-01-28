@@ -95,6 +95,14 @@ class DeleteTaskResult(BaseModel):
 # Server Initialization
 mcp = FastMCP("todo-mcp-server")
 db_url = os.getenv("DATABASE_URL", "sqlite:///./todo_app.db")
+
+# Neon/PostgreSQL frequently requires SSL
+if db_url.startswith("postgresql") and "sslmode" not in db_url:
+    if "?" in db_url:
+        db_url += "&sslmode=require"
+    else:
+        db_url += "?sslmode=require"
+
 logger.info(f"Using DB URL: {db_url}")
 engine = create_engine(db_url)
 

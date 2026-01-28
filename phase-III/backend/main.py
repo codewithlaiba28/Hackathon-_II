@@ -46,14 +46,13 @@ app = FastAPI(
 allowed_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://192.168.0.103:3000", # User's current network IP
+    os.getenv("FRONTEND_URL", "https://todo-chat.vercel.app"),
     "https://todo-chat.vercel.app"
 ]
 
-# In development, it's often safer to allow all for testing
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Temporarily allow all for debugging
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

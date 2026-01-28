@@ -43,6 +43,14 @@ const OpenAIChatKitInterface: React.FC = () => {
         setInputValue(''); // Clear input immediately for better UX
 
         try {
+            const session = await authClient.getSession();
+            if (!session.data?.session) {
+                alert("Please sign in to use the chatbot.");
+                setInputValue(messageToSend);
+                setIsSending(false);
+                return;
+            }
+
             if (chat?.sendUserMessage) {
                 await chat.sendUserMessage({ text: messageToSend });
             } else {
