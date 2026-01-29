@@ -13,8 +13,11 @@ Vercel is stateless; SQLite won't save your data.
 1. Go to [Vercel](https://vercel.com/dashboard) -> **Add New** -> **Project**.
 2. Select your GitHub Repository.
 3. **Configure Project**:
-   - **Framework Preset**: `Next.js` (Vercel will detect it).
-   - **Root Directory**: `phase-III` (This is crucial, set it to the root of Phase III).
+   - **Framework Preset**: `Next.js`.
+   - **Root Directory**: `phase-III` (Root of your project).
+   - **Build & Development Settings**: Click **Override** for these two:
+     - **Build Command**: `cd frontend && npm install && npm run build`
+     - **Output Directory**: `frontend/.next`
 4. **Environment Variables**: Add these exact keys:
 
 | Variable | Recommended Value |

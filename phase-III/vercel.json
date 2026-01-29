@@ -1,18 +1,11 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "backend/main.py",
-            "use": "@vercel/python",
-            "config": {
-                "runtime": "python3.11"
-            }
-        },
-        {
-            "src": "frontend/next.config.ts",
-            "use": "@vercel/next"
+    "functions": {
+        "backend/main.py": {
+            "runtime": "vercel-python@3.11",
+            "includeFiles": "mcp-servers/**"
         }
-    ],
+    },
     "rewrites": [
         {
             "source": "/api/(.*)",
