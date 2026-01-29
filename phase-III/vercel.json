@@ -1,14 +1,14 @@
 {
     "version": 2,
     "functions": {
-        "backend/main.py": {
+        "api/index.py": {
             "includeFiles": "mcp-servers/**"
         }
     },
     "rewrites": [
         {
             "source": "/api/(.*)",
-            "destination": "backend/main.py"
+            "destination": "/api/index.py"
         }
     ]
 }
