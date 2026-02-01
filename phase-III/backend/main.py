@@ -48,8 +48,11 @@ app = FastAPI(
 allowed_origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    os.getenv("FRONTEND_URL", "*"), # Allow any frontend in development or specified URL
-    "https://*.vercel.app" # Broad allow for Vercel preview/production urls
+    # Specific production domains
+    os.getenv("FRONTEND_URL"), 
+    os.getenv("BETTER_AUTH_URL"),
+    # Allow all Vercel preview/production/branch deployments
+    "https://*.vercel.app"
 ]
 
 app.add_middleware(
