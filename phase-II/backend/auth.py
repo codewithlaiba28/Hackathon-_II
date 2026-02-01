@@ -48,17 +48,6 @@ def decode_token(token: str) -> Optional[schemas.TokenData]:
     except Exception as e:
         logger.error(f"Unexpected error decoding token: {str(e)}")
         print(f"DEBUG: Unexpected error decoding token: {str(e)}")
-        # Check if it is a session token in the database
-        try:
-            with Session(get_session()) as session_db: # Use transient session for auth check
-                # Note: get_session is a generator, so we need to handle it properly or just use a new engine connection
-                # Simplified: assuming we can just use the token to query
-                # Since get_session is a dependency, we might not be able to easy use it inside this synchronous function 
-                # unless we change decode_token to async OR use a separate db helper.
-                # However, decode_token is called by get_current_user which HAS a session.
-                pass
-        except:
-            pass
         return None
 
 def verify_session_token(token: str, db: Session) -> Optional[schemas.TokenData]:

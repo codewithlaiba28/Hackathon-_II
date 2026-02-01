@@ -3,7 +3,7 @@ from jose import jwt
 import datetime
 import sys
 
-SECRET = "better_auth_secret_hackathon_phase2_secure_key"
+SECRET = "0d50422e1e7d97de9c44d16ba9b8dde35d1059a75daf03dd"
 ALGORITHM = "HS256"
 BASE_URL = "http://localhost:8000"
 
