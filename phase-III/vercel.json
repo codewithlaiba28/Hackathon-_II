@@ -7,7 +7,7 @@
     },
     "rewrites": [
         {
-            "source": "/api/(.*)",
+            "source": "/api/:path((?!auth).*)",
             "destination": "/api/index.py"
         }
     ]
