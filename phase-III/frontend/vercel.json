@@ -1,3 +1,9 @@
 {
-    "framework": "nextjs"
+    "framework": "nextjs",
+    "rewrites": [
+        {
+            "source": "/api/:path*",
+            "destination": "https://placeholder-will-be-overridden-by-env/:path*"
+        }
+    ]
 }

@@ -89,50 +89,36 @@ class TodoAgent:
     async def get_agent(self, server):
         return Agent(
             name="Todo Assistant",
-            instructions=f"""You are a friendly todo assistant for user '{self.user_id}'. Be concise and helpful.
+            instructions=f"""You are a friendly, professional todo assistant. Be concise, direct, and helpful.
+
+YOUR IDENTITY & ROLE:
+- You help user manage their tasks.
+- NEVER mention the user's ID '{self.user_id}' in your response.
+- NEVER show internal labels like 'Title:', 'Answer:', or 'Response:' in your final output.
+- CRITICAL: NEVER output JSON, dictionary strings, or tool call arguments (e.g., '{{"user_id": ...}}') in your conversational text.
+- Speak naturally to the user.
 
 Quick Actions:
 - Add task: use add_task(user_id, title, description)
-- List tasks: use list_tasks(user_id, status) - status: "all", "pending", or "completed"
+- List tasks: use list_tasks(user_id, status)
 - Complete task: use complete_task(user_id, task_id)
 - Delete task: use delete_task(user_id, task_id)
 - Update task: use update_task(user_id, task_id, title, description)
 
-CRITICAL - Finding Task by Name (SILENT LOOKUP):
-When user mentions a task by NAME (not ID) for delete/complete/update:
-1. SILENTLY call list_tasks(user_id, "all") - DON'T tell user you're searching
-2. FIND the task ID by matching the task title/name
-3. THEN call the appropriate action (delete_task/complete_task/update_task) with that ID
-4. ONLY show the final result to user (e.g., "🗑️ Deleted 'buy milk' task!")
+SILENT TOOL USE:
+- When user mentions a task by NAME for delete/complete/update:
+  1. CALL list_tasks(user_id, "all") SILENTLY.
+  2. MATCH the name to find the ID.
+  3. CALL the action with that ID.
+- NEVER tell the user "I'm looking for the task" or "Found it". Just perform the action and confirm.
 
-DO NOT say things like:
-❌ "Let me check your tasks first..."
-❌ "I'm searching for that task..."
-❌ "Here are your tasks: ..."
+RESPONSE STYLE:
+- Keep it SHORT (1-2 sentences).
+- Use emojis sparsely: ✅ 🗑️ 📝 🎯
+- ONLY show the final result: "🗑️ Deleted 'buy milk' task!" or "✅ Marked 'clean room' as complete!"
+- If the model returns multiple parts, only the relevant human-readable text should be shown.
 
-JUST DO IT and confirm:
-✅ "🗑️ Deleted 'buy milk' task!"
-✅ "✅ Marked 'groceries' as complete!"
-✅ "📝 Updated task to 'call mom'!"
-
-Examples:
-- User: "Delete buy milk task" 
-  → Silently call list_tasks, find "buy milk" ID, delete_task, respond: "🗑️ Deleted!"
-  
-- User: "Mark groceries as complete"
-  → Silently call list_tasks, find "groceries" ID, complete_task, respond: "✅ Done!"
-  
-- User: "Edit meeting to call mom"
-  → Silently call list_tasks, find "meeting" ID, update_task, respond: "📝 Updated!"
-
-Response Style:
-- Keep responses SHORT and friendly (1-2 sentences max)
-- Use emojis ✅ 📝 🎯 🗑️
-- NEVER mention the lookup process
-- Only show final action result
-- If task not found, say "Task not found. Try 'show my tasks' to see what's available."
-
-ALWAYS use user_id '{self.user_id}' in all tool calls.""",
+ALWAYS use user_id '{self.user_id}' for all tool calls.""",
             mcp_servers=[server],
             model=self.model
         )
@@ -197,9 +183,39 @@ ALWAYS use user_id '{self.user_id}' in all tool calls.""",
                                 })
                     
                     print(f"Extracted {len(tool_calls)} tool calls.")
-                    print(f"DEBUG: Agent Final Output: {result.final_output}")
+                    
+                    # Clean the final output to remove potential noise
+                    final_output = result.final_output
+                    if final_output:
+                        # 1. Strip common hallucinated prefixes
+                        prefixes_to_strip = ["Title:", "Response:", "Answer:", "Assistant:", "Result:"]
+                        for prefix in prefixes_to_strip:
+                            if final_output.lower().startswith(prefix.lower()):
+                                final_output = final_output[len(prefix):].strip()
+                        
+                        # 2. Aggressively remove EVERY JSON-like structure at the start (leaked tool args)
+                        import re
+                        # Loop to catch multiple consecutive JSON objects (common in multi-step tool calls)
+                        while True:
+                            # Matches balanced curly braces containing keys like user_id, task_id, etc.
+                            json_pattern = r'^\{[^{}]*("user_id"|"task_id"|"title"|"status"|"description")[^{}]*\}\s*'
+                            match = re.match(json_pattern, final_output)
+                            if match:
+                                final_output = final_output[match.end():].strip()
+                                print(f"DEBUG: Stripped one JSON block. Remaining: {final_output[:20]}...")
+                            else:
+                                break
+                        
+                        # 3. Final safety check for user_id
+                        final_output = final_output.replace(self.user_id, "you")
+                    
+                    try:
+                        print(f"DEBUG: Agent Final Output (Cleaned): {final_output}")
+                    except UnicodeEncodeError:
+                        print("DEBUG: Agent Final Output (Cleaned): [Contains characters not support by console encoding]")
+                        
                     return {
-                        "response": result.final_output,
+                        "response": final_output,
                         "tool_calls": tool_calls
                     }
                     
@@ -219,8 +235,11 @@ ALWAYS use user_id '{self.user_id}' in all tool calls.""",
     async def run_streamed(self, message: str, history: List[Dict[str, str]] = None):
         """
         Stream the agent response with the given message and history.
+        Includes a stream interceptor to hide leaked JSON tool arguments.
         """
         import sys
+        import json
+        import re
         
         # Path logic (consolidated)
         if os.getenv("VERCEL_REGION"):
@@ -240,7 +259,67 @@ ALWAYS use user_id '{self.user_id}' in all tool calls.""",
             full_input = (history or []) + [{"role": "user", "content": message}]
             
             # OpenAI Agents SDK Runner.run_streamed returns a RunResultStreaming object
-            # We must call .stream_events() to get the async iterator
             result = Runner.run_streamed(agent, full_input)
+            
+            # Robust Streaming Filter
+            full_content_so_far = ""
+            yielded_anything = False
+            
             async for event in result.stream_events():
+                # Intercept text deltas to filter out leaked JSON
+                if event.type == "raw_response_event":
+                    data = event.data
+                    content = ""
+                    
+                    # Extract content delta
+                    if hasattr(data, "delta") and isinstance(data.delta, str):
+                        content = data.delta
+                    elif hasattr(data, "type") and data.type == "text_delta":
+                        content = data.text
+                    elif hasattr(data, "choices") and len(data.choices) > 0:
+                        choice = data.choices[0]
+                        if hasattr(choice, "delta") and hasattr(choice.delta, "content") and choice.delta.content:
+                            content = choice.delta.content
+                    
+                    if content:
+                        full_content_so_far += content
+                        
+                        if not yielded_anything:
+                            # Try to find the start of the real message
+                            # We strip all balanced { } blocks from the start
+                            temp_content = full_content_so_far.strip()
+                            
+                            while temp_content.startswith("{"):
+                                # Find matching }
+                                brace_count = 0
+                                found_end = -1
+                                for i, char in enumerate(temp_content):
+                                    if char == "{":
+                                        brace_count += 1
+                                    elif char == "}":
+                                        brace_count -= 1
+                                        if brace_count == 0:
+                                            found_end = i
+                                            break
+                                
+                                if found_end != -1:
+                                    # Skip this block
+                                    temp_content = temp_content[found_end + 1:].strip()
+                                else:
+                                    # Block is incomplete, wait for more chunks
+                                    break
+                            
+                            # If we have non-JSON content left, yield it and mark as done
+                            if temp_content and not temp_content.startswith("{"):
+                                yielded_anything = True
+                                # Update the event data with the cleaned start
+                                if hasattr(data, "delta"): data.delta = temp_content
+                                elif hasattr(data, "text"): data.text = temp_content
+                                elif hasattr(data, "choices"): data.choices[0].delta.content = temp_content
+                                yield event
+                            
+                            # While we haven't yielded anything, we swallow the ongoing JSON leak chunks
+                            continue
+                
+                # Normal event yielding if not filtering
                 yield event
