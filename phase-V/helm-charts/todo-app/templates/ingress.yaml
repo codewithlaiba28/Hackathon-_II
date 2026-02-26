@@ -1,0 +1,60 @@
+{{- if .Values.frontend.ingress.enabled -}}
+{{- $fullName := include "todo-app.fullname" . -}}
+{{- $svcPort := .Values.frontend.service.port -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "todo-app.labels" . | nindent 4 }}
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffering: "off"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+  {{- with .Values.frontend.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.frontend.ingress.className }}
+  ingressClassName: {{ .Values.frontend.ingress.className }}
+  {{- end }}
+  {{- if .Values.frontend.ingress.tls }}
+  tls:
+    {{- range .Values.frontend.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.frontend.ingress.hosts }}
+    - {{ if .host }}host: {{ .host | quote }}{{ end }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ $fullName }}-frontend
+                port:
+                  number: {{ $svcPort }}
+          {{- end }}
+          - path: /api/auth
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-frontend
+                port:
+                  number: {{ $svcPort }}
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}-backend
+                port:
+                  number: 80
+    {{- end }}
+{{- end }}

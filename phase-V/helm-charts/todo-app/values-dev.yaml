@@ -1,0 +1,59 @@
+# Development environment specific values
+
+database:
+  url: "postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+frontend:
+  image:
+    tag: "latest"
+  replicaCount: 1
+  databaseUrl: "postgresql://neondb_owner:npg_zuUPO0C6YqLn@ep-aged-thunder-ah49616e-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+  betterAuthUrl: "http://localhost:3000"
+  nextPublicBaseUrl: "http://localhost:3000"
+  resources:
+    limits:
+      cpu: 300m
+      memory: 400Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  ingress:
+    enabled: false
+
+backend:
+  image:
+    tag: "latest"
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  betterAuthUrl: "http://localhost:3000"
+  apiUrl: "http://localhost:8000"
+
+recurringTaskService:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+notificationService:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+environment:
+  name: "development"
+
+serviceAccount:
+  create: true

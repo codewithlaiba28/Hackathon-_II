@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git fetch --all --prune)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh --json \"update Feature: AI-Powered Todo Chatbot \\(Basic Level\\)\n\nIntent:\nBuild a natural-language Todo chatbot that allows users to create, list, update, complete, and delete tasks using MCP tools invoked by an AI agent.\n\nScope:\n- Conversational interface via OpenAI ChatKit\n- Stateless FastAPI backend\n- MCP server exposing task operations\n- Persistent conversation and task storage\n\nFunctional Requirements:\n1. User can manage todos using natural language\n2. AI agent maps intent → MCP tool invocation\n3. Conversation history persisted in database\n4. MCP tools are stateless and DB-backed\n5. Authentication via Better Auth + JWT\n\nTooling Requirements:\n- add_task\n- list_tasks\n- update_task\n- complete_task\n- delete_task\n\nAI Behavior:\n- Detect user intent reliably\n- Invoke correct MCP tool\\(s\\)\n- Confirm actions conversationally\n- Handle missing tasks gracefully\n\nConstraints:\n- Must use OpenAI Agents SDK\n- Must use Official MCP SDK\n- Must use Claude Code for all execution\n- No manual coding allowed\n\nSuccess Criteria:\n- All CRUD operations work via chat\n- Agent invokes correct MCP tools\n- Stateless architecture verified\n- Conversation continuity maintained\" --number 1 --short-name \"ai-todo-chatbot\")",
+      "Bash(.specify/scripts/bash/setup-plan.sh --json)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh --json)",
+      "Bash(git config user.name)",
+      "Bash(npx skills find:*)",
+      "Bash(npx skills add:*)",
+      "Bash(dir \".specify/memory/\" /s:*)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)"
+    ]
+  }
+}

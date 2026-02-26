@@ -1,0 +1,18 @@
+# Defaults
+.DS_Store
+# Common VCS ignores
+.git/
+.gitignore
+# Build output
+*.tgz
+*.zip
+*.tar
+# vim
+*.swp
+*.swo
+# IDEs
+.vscode/
+.idea/
+# Kubernetes secrets
+*.secret.yaml
+secrets/

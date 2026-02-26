@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  namespace: todo-app
+  labels:
+    app: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "notification-service"
+        dapr.io/app-port: "8000"
+        dapr.io/config: "appconfig"
+    spec:
+      containers:
+      - name: notification-service
+        image: "{{ .Values.notificationService.image.repository }}:{{ .Values.notificationService.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.notificationService.image.pullPolicy | default "IfNotPresent" }}
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+        readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8000
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            timeoutSeconds: 10
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: neon-db-secret
+              key: connection-string
+        - name: ENABLE_DAPR
+          value: "true"
+        - name: DAPR_PUBSUB_NAME
+          value: "kafka-pubsub"

@@ -1,0 +1,13 @@
+spec:
+  template:
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: frontend-config
+      containers:
+        - name: frontend
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/next.config.ts
+              subPath: next.config.ts

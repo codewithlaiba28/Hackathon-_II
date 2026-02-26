@@ -1,0 +1,200 @@
+﻿INFO:     127.0.0.1:37920 - "POST /cron-binding HTTP/1.1" 404 Not Found
+INFO:main:Incoming request: GET http://10.244.0.143:8000/health/live
+DEBUG:main:Headers: Headers({'host': '10.244.0.143:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+INFO:main:Response status: 200
+INFO:     10.244.0.1:58682 - "GET /health/live HTTP/1.1" 200 OK
+INFO:main:Incoming request: DELETE http://todo-app-backend/api/SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P/tasks/13
+DEBUG:main:Headers: Headers({'content-length': '0', 'cookie': 'better-auth.session_token=ZM0E6BAATQUyvhUiPbH9Z6N7c3AOOdVB.K0W%2BvBLonXCWsSw6FfebObcWSShngvcHhau%2Fv5WgHfc%3D', 'accept-language': 'en-US,en;q=0.9', 'accept-encoding': 'gzip, deflate, br, zstd', 'referer': 'http://localhost:3000/todo/tasks', 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-origin', 'origin': 'http://localhost:3000', 'accept': '*/*', 'sec-ch-ua-mobile': '?0', 'content-type': 'application/json', 'sec-ch-ua': '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'authorization': 'Bearer ZM0E6BAATQUyvhUiPbH9Z6N7c3AOOdVB.K0W+vBLonXCWsSw6FfebObcWSShngvcHhau/v5WgHfc=', 'sec-ch-ua-platform': '"Windows"', 'connection': 'close', 'host': 'todo-app-backend', 'x-forwarded-host': 'localhost:3000'})
+DEBUG:auth:JWKS JWT verification failed: Error decoding token headers.
+INFO:     10.244.0.141:34314 - "DELETE /api/SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P/tasks/13 HTTP/1.1" 500 Internal Server Error
+ERROR:main:Request failed: (psycopg2.errors.NotNullViolation) null value in column "task_id" of relation "tasktag" violates not-null constraint
+DETAIL:  Failing row contains (9, null, personal, 2026-02-26 07:58:53.077717).
+
+[SQL: UPDATE tasktag SET task_id=%(task_id)s WHERE tasktag.id = %(tasktag_id)s]
+[parameters: {'task_id': None, 'tasktag_id': 9}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.NotNullViolation: null value in column "task_id" of relation "tasktag" violates not-null constraint
+DETAIL:  Failing row contains (9, null, personal, 2026-02-26 07:58:53.077717).
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/root/.local/lib/python3.11/site-packages/uvicorn/protocols/http/httptools_impl.py", line 416, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 60, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/fastapi/applications.py", line 1160, in __call__
+    await super().__call__(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/applications.py", line 107, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/base.py", line 191, in __call__
+    with recv_stream, send_stream, collapse_excgroups():
+  File "/usr/local/lib/python3.11/contextlib.py", line 158, in __exit__
+    self.gen.throw(typ, value, traceback)
+  File "/root/.local/lib/python3.11/site-packages/starlette/_utils.py", line 87, in collapse_excgroups
+    raise exc
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/base.py", line 193, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/main.py", line 80, in log_requests
+    raise e
+  File "/app/main.py", line 75, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 95, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/cors.py", line 153, in simple_response
+    await self.app(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/root/.local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/root/.local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/routing.py", line 716, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/routing.py", line 736, in app
+    await route.handle(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/routing.py", line 290, in handle
+    await self.app(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/fastapi/routing.py", line 119, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/root/.local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/root/.local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/root/.local/lib/python3.11/site-packages/fastapi/routing.py", line 105, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/fastapi/routing.py", line 431, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/fastapi/routing.py", line 313, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/routers/tasks.py", line 260, in delete_task
+    session.commit()
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4331, in flush
+    self._flush(objects)
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 4427, in _flush
+    flush_context.execute()
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 463, in execute
+    n.execute_aggregate(self, set_)
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 567, in execute_aggregate
+    self.execute(uow)
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 85, in save_obj
+    _emit_update_statements(
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/orm/persistence.py", line 912, in _emit_update_statements
+    c = connection.execute(
+        ^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/root/.local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.IntegrityError: (psycopg2.errors.NotNullViolation) null value in column "task_id" of relation "tasktag" violates not-null constraint
+DETAIL:  Failing row contains (9, null, personal, 2026-02-26 07:58:53.077717).
+
+[SQL: UPDATE tasktag SET task_id=%(task_id)s WHERE tasktag.id = %(tasktag_id)s]
+[parameters: {'task_id': None, 'tasktag_id': 9}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+INFO:main:Incoming request: GET http://10.244.0.143:8000/health/ready
+DEBUG:main:Headers: Headers({'host': '10.244.0.143:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+DEBUG:httpcore.connection:connect_tcp.started host='localhost' port=3500 local_address='0.0.0.0' timeout=2.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7a57f0703610>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Date', b'Thu, 26 Feb 2026 08:42:58 GMT')])
+INFO:httpx:HTTP Request: GET http://localhost:3500/v1.0/healthz "HTTP/1.1 204 No Content"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+INFO:main:Response status: 200
+INFO:     10.244.0.1:59422 - "GET /health/ready HTTP/1.1" 200 OK
+INFO:main:Incoming request: GET http://localhost:8000/health
+DEBUG:main:Headers: Headers({'user-agent': 'Mozilla/5.0 (Windows NT; Windows NT 10.0; en-US) WindowsPowerShell/5.1.22000.2538', 'host': 'localhost:8000', 'connection': 'Keep-Alive'})
+INFO:main:Response status: 404
+INFO:     127.0.0.1:42020 - "GET /health HTTP/1.1" 404 Not Found
+INFO:main:Incoming request: GET http://10.244.0.143:8000/health/live
+DEBUG:main:Headers: Headers({'host': '10.244.0.143:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+INFO:main:Response status: 200
+INFO:     10.244.0.1:48606 - "GET /health/live HTTP/1.1" 200 OK
+INFO:main:Incoming request: GET http://10.244.0.143:8000/health/ready
+DEBUG:main:Headers: Headers({'host': '10.244.0.143:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+DEBUG:httpcore.connection:connect_tcp.started host='localhost' port=3500 local_address='0.0.0.0' timeout=2.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7a57f00a5210>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Date', b'Thu, 26 Feb 2026 08:43:29 GMT')])
+INFO:httpx:HTTP Request: GET http://localhost:3500/v1.0/healthz "HTTP/1.1 204 No Content"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+INFO:main:Response status: 200
+INFO:     10.244.0.1:45626 - "GET /health/ready HTTP/1.1" 200 OK

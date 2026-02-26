@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recurring-task-service
+  namespace: todo-app
+  labels:
+    app: recurring-task-service
+    app.kubernetes.io/component: recurring-task-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: recurring-task-service
+  template:
+    metadata:
+      labels:
+        app: recurring-task-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "recurring-task-service"
+        dapr.io/app-port: "8000"
+        dapr.io/config: "appconfig"
+        dapr.io/log-level: "info"
+    spec:
+      containers:
+      - name: recurring-task-service
+        image: "todo-recurring-task-service:latest"
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8000
+          initialDelaySeconds: 45
+          periodSeconds: 15
+          timeoutSeconds: 5
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: DATABASE_URL
+        - name: ENABLE_DAPR
+          value: "true"
+        - name: DAPR_PUBSUB_NAME
+          value: "pubsub"
+        - name: APP_ENV
+          value: "development"
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recurring-task-service
+  namespace: todo-app
+  labels:
+    app: recurring-task-service
+spec:
+  type: ClusterIP
+  selector:
+    app: recurring-task-service
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http

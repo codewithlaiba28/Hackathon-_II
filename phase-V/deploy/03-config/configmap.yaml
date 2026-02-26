@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: todo-app
+data:
+  BACKEND_HOST: "backend"
+  FRONTEND_PORT: "3000"
+  NEXT_PUBLIC_API_URL: "/api" # For client-side, requests go through ingress/service or direct if exposed
+  # If using Minikube tunnel or NodePort, this might need dynamic injection or a specific value.
+  # For internal server-side calls:
+  INTERNAL_API_URL: "http://backend:8000/api"

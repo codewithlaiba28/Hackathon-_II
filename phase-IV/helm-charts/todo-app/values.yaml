@@ -1,0 +1,78 @@
+# Default values for todo-app
+
+# Frontend configuration
+frontend:
+  image:
+    repository: todo-frontend
+    tag: v4
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - host: ""
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  resources:
+    limits:
+      cpu: 500m
+      memory: 800Mi
+    requests:
+      cpu: 200m
+      memory: 400Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  env:
+    - name: NEXT_PUBLIC_API_URL
+      value: "http://127.0.0.1"
+
+# Backend configuration
+backend:
+  image:
+    repository: todo-backend
+    tag: v26
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1536Mi
+    requests:
+      cpu: 400m
+      memory: 800Mi
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 2
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # Secrets/Secrets-derived values
+  cerebrasApiKey: "csk-2jw8xvmwmv32tfyvyectnmwpxdvp4ckfr66tdwp83r336324"
+  cerebrasBaseUrl: "https://api.cerebras.ai/v1"
+  cerebrasModel: "llama-3.3-70b"
+  authSecret: "1f7f6ff432c42d122e986e869d2067f92957b135"
+  betterAuthUrl: "http://127.0.0.1"
+
+# Database configuration (Neon PostgreSQL)
+database:
+  url: "postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+  sslRequired: true
+
+# Environment configuration
+environment:
+  name: "development"

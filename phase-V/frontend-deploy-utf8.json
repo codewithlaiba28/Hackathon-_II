@@ -1,0 +1,182 @@
+﻿{
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+        "annotations": {
+            "deployment.kubernetes.io/revision": "4",
+            "meta.helm.sh/release-name": "todo-app",
+            "meta.helm.sh/release-namespace": "todo-app"
+        },
+        "creationTimestamp": "2026-02-24T14:10:22Z",
+        "generation": 4,
+        "labels": {
+            "app.kubernetes.io/component": "frontend",
+            "app.kubernetes.io/instance": "todo-app",
+            "app.kubernetes.io/managed-by": "Helm",
+            "app.kubernetes.io/name": "todo-app",
+            "app.kubernetes.io/version": "4.0.0",
+            "helm.sh/chart": "todo-app-1.0.0"
+        },
+        "name": "todo-app-frontend",
+        "namespace": "todo-app",
+        "resourceVersion": "84206",
+        "uid": "cafd880b-8d93-4223-b08e-12d48849be29"
+    },
+    "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 1,
+        "revisionHistoryLimit": 10,
+        "selector": {
+            "matchLabels": {
+                "app.kubernetes.io/component": "frontend",
+                "app.kubernetes.io/instance": "todo-app",
+                "app.kubernetes.io/name": "todo-app"
+            }
+        },
+        "strategy": {
+            "rollingUpdate": {
+                "maxSurge": "25%",
+                "maxUnavailable": "25%"
+            },
+            "type": "RollingUpdate"
+        },
+        "template": {
+            "metadata": {
+                "annotations": {
+                    "dapr.io/app-id": "frontend",
+                    "dapr.io/app-port": "3000",
+                    "dapr.io/config": "appconfig",
+                    "dapr.io/enabled": "true",
+                    "kubectl.kubernetes.io/restartedAt": "2026-02-24T20:21:54+05:00"
+                },
+                "labels": {
+                    "app.kubernetes.io/component": "frontend",
+                    "app.kubernetes.io/instance": "todo-app",
+                    "app.kubernetes.io/name": "todo-app"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "env": [
+                            {
+                                "name": "NEXT_PUBLIC_API_URL"
+                            },
+                            {
+                                "name": "INTERNAL_API_URL",
+                                "value": "http://todo-app-backend:80/api"
+                            },
+                            {
+                                "name": "DATABASE_URL",
+                                "value": "postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+                            },
+                            {
+                                "name": "BETTER_AUTH_SECRET",
+                                "value": "1f7f6ff432c42d122e986e869d2067f92957b135"
+                            },
+                            {
+                                "name": "BETTER_AUTH_URL",
+                                "value": "http://localhost:3000"
+                            }
+                        ],
+                        "image": "todo-frontend:latest",
+                        "imagePullPolicy": "IfNotPresent",
+                        "livenessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": 3000,
+                                "scheme": "HTTP"
+                            },
+                            "initialDelaySeconds": 120,
+                            "periodSeconds": 30,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 30
+                        },
+                        "name": "frontend",
+                        "ports": [
+                            {
+                                "containerPort": 3000,
+                                "name": "http",
+                                "protocol": "TCP"
+                            }
+                        ],
+                        "readinessProbe": {
+                            "failureThreshold": 3,
+                            "httpGet": {
+                                "path": "/",
+                                "port": 3000,
+                                "scheme": "HTTP"
+                            },
+                            "initialDelaySeconds": 120,
+                            "periodSeconds": 30,
+                            "successThreshold": 1,
+                            "timeoutSeconds": 30
+                        },
+                        "resources": {
+                            "limits": {
+                                "cpu": "300m",
+                                "memory": "400Mi"
+                            },
+                            "requests": {
+                                "cpu": "100m",
+                                "memory": "200Mi"
+                            }
+                        },
+                        "terminationMessagePath": "/dev/termination-log",
+                        "terminationMessagePolicy": "File",
+                        "volumeMounts": [
+                            {
+                                "mountPath": "/app/next.config.ts",
+                                "name": "config-volume",
+                                "subPath": "next.config.ts"
+                            }
+                        ]
+                    }
+                ],
+                "dnsPolicy": "ClusterFirst",
+                "restartPolicy": "Always",
+                "schedulerName": "default-scheduler",
+                "securityContext": {},
+                "serviceAccount": "todo-app",
+                "serviceAccountName": "todo-app",
+                "terminationGracePeriodSeconds": 30,
+                "volumes": [
+                    {
+                        "configMap": {
+                            "defaultMode": 420,
+                            "name": "frontend-config"
+                        },
+                        "name": "config-volume"
+                    }
+                ]
+            }
+        }
+    },
+    "status": {
+        "availableReplicas": 1,
+        "conditions": [
+            {
+                "lastTransitionTime": "2026-02-24T16:23:25Z",
+                "lastUpdateTime": "2026-02-24T16:23:25Z",
+                "message": "Deployment has minimum availability.",
+                "reason": "MinimumReplicasAvailable",
+                "status": "True",
+                "type": "Available"
+            },
+            {
+                "lastTransitionTime": "2026-02-24T15:55:32Z",
+                "lastUpdateTime": "2026-02-24T16:23:34Z",
+                "message": "ReplicaSet \"todo-app-frontend-57ddf6d895\" has successfully progressed.",
+                "reason": "NewReplicaSetAvailable",
+                "status": "True",
+                "type": "Progressing"
+            }
+        ],
+        "observedGeneration": 4,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "terminatingReplicas": 0,
+        "updatedReplicas": 1
+    }
+}

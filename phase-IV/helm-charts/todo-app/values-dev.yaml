@@ -1,0 +1,56 @@
+# Development environment specific values
+
+# Database configuration (Neon PostgreSQL)
+database:
+  url: "postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+
+# Frontend configuration
+frontend:
+  image:
+    tag: "v1"
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 300m
+      memory: 300Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+  env:
+    - name: NEXT_PUBLIC_API_URL
+      value: "http://localhost:8000"
+
+# Backend configuration
+backend:
+  image:
+    repository: todo-backend
+    tag: "v1"
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+  podSecurityContext: {}
+  securityContext: {}
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  env:
+    - name: OPENAI_BASE_URL
+      value: "https://api.cerebras.ai/v1"
+    - name: OPENAI_MODEL
+      value: "llama-3.3-70b"
+  
+  # Backend secrets
+  openaiApiKey: "csk-2jw8xvmwmv32tfyvyectnmwpxdvp4ckfr66tdwp83r336324"
+  authSecret: "1f7f6ff432c42d122e986e869d2067f92957b135"
+  betterAuthUrl: "http://localhost:3000"
+
+# Environment configuration
+environment:
+  name: "development"

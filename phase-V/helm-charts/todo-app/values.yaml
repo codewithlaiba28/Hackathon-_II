@@ -1,0 +1,110 @@
+# Default values for todo-app
+
+# Frontend configuration
+frontend:
+  image:
+    repository: todo-frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  # Frontend-specific database URL (contains Better Auth tables)
+  databaseUrl: "postgresql://neondb_owner:npg_zuUPO0C6YqLn@ep-aged-thunder-ah49616e-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+  betterAuthUrl: "http://localhost:3000"
+  nextPublicBaseUrl: "http://localhost:3000"
+  service:
+    type: ClusterIP
+    port: 80
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: 
+      nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    hosts:
+      - host: ""
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+  resources:
+    limits:
+      cpu: 500m
+      memory: 800Mi
+    requests:
+      cpu: 200m
+      memory: 400Mi
+
+# Backend configuration
+backend:
+  image:
+    repository: todo-backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1536Mi
+    requests:
+      cpu: 400m
+      memory: 800Mi
+  cerebrasApiKey: "csk-2jw8xvmwmv32tfyvyectnmwpxdvp4ckfr66tdwp83r336324"
+  cerebrasBaseUrl: "https://api.cerebras.ai/v1"
+  cerebrasModel: "llama3.1-8b"
+  authSecret: "1f7f6ff432c42d122e986e869d2067f92957b135"
+  betterAuthUrl: "http://localhost:3000"
+
+# Recurring Task Service configuration
+recurringTaskService:
+  enabled: true
+  image:
+    repository: todo-recurring-task-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Notification Service configuration
+notificationService:
+  enabled: true
+  image:
+    repository: todo-notification-service
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Database configuration (Neon PostgreSQL)
+database:
+  url: "postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+  sslRequired: true
+
+# Environment configuration
+environment:
+  name: "production"
+
+# Service Account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""

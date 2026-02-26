@@ -1,0 +1,30 @@
+spec:
+  template:
+    spec:
+      volumes:
+        - name: config-volume
+          configMap:
+            name: frontend-config
+      containers:
+        - name: frontend
+          livenessProbe:
+            initialDelaySeconds: 180
+            timeoutSeconds: 60
+          readinessProbe:
+            initialDelaySeconds: 180
+            timeoutSeconds: 60
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/next.config.ts
+              subPath: next.config.ts
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: ""
+            - name: INTERNAL_API_URL
+              value: "http://todo-app-backend:80/api"
+            - name: DATABASE_URL
+              value: "postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require"
+            - name: BETTER_AUTH_SECRET
+              value: "1f7f6ff432c42d122e986e869d2067f92957b135"
+            - name: BETTER_AUTH_URL
+              value: "http://localhost:3000"

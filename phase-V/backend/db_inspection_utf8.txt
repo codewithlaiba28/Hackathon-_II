@@ -1,0 +1,67 @@
+DEBUG: Using Database URL: postgresql://neondb_owner:npg_y2AxfnYdLmk7@ep-young-union-ahyord23-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require
+
+--- ALL TASKS IN DB ---
+ID: 2 | Title: Buy meat | UserID: 8GYJGuHNZkbR1gZRnc8dxRVOvKoaKtXw | Status: completed | CreatedAt: 2026-01-20 18:55:13.246449
+ID: 42 | Title: buy groceries | UserID: dbaZbITesNULFaTw2nbJwVYmGtSCKnY2 | Status: pending | CreatedAt: 2026-02-02 16:31:27.779087
+ID: 43 | Title: buy milk | UserID: dbaZbITesNULFaTw2nbJwVYmGtSCKnY2 | Status: pending | CreatedAt: 2026-02-02 16:31:32.935556
+ID: 44 | Title: hi | UserID: SDxHNOdyvPTEm3KyrS5KLwT4r4iPznmk | Status: pending | CreatedAt: 2026-02-08 08:03:30.332130
+ID: 45 | Title: hello | UserID: SDxHNOdyvPTEm3KyrS5KLwT4r4iPznmk | Status: pending | CreatedAt: 2026-02-08 08:27:50.451151
+ID: 46 | Title: Buy milk | UserID: SDxHNOdyvPTEm3KyrS5KLwT4r4iPznmk | Status: pending | CreatedAt: 2026-02-08 09:41:25.593587
+ID: 47 | Title: Buy milk | UserID: XyaU8F0PvkbdH3CwBBpV3jRz4EWYcvad | Status: pending | CreatedAt: 2026-02-16 13:39:26.928579
+ID: 48 | Title: Eat Biryani | UserID: XyaU8F0PvkbdH3CwBBpV3jRz4EWYcvad | Status: pending | CreatedAt: 2026-02-16 14:10:05.439297
+ID: 50 | Title: hi | UserID: XyaU8F0PvkbdH3CwBBpV3jRz4EWYcvad | Status: pending | CreatedAt: 2026-02-16 14:26:41.736165
+ID: 3 | Title: buy groceries | UserID: test_user_66 | Status: completed | CreatedAt: 2026-01-20 18:56:11.243615
+ID: 62 | Title: Call mom | UserID: XyaU8F0PvkbdH3CwBBpV3jRz4EWYcvad | Status: pending | CreatedAt: 2026-02-16 14:57:50.276572
+ID: 63 | Title: hi | UserID: wxkCaXBAli1SiL59OvZ1H0u8S1cd39GJ | Status: pending | CreatedAt: 2026-02-23 11:46:26.379993
+ID: 64 | Title: hi | UserID: bBF1FssAv2oMLEZjRS5H7DZzvUt8lEVD | Status: pending | CreatedAt: 2026-02-24 15:32:13.145705
+ID: 65 | Title: Buy milk | UserID: bBF1FssAv2oMLEZjRS5H7DZzvUt8lEVD | Status: pending | CreatedAt: 2026-02-24 15:47:18.296228
+ID: 66 | Title: laiba | UserID: bBF1FssAv2oMLEZjRS5H7DZzvUt8lEVD | Status: pending | CreatedAt: 2026-02-24 16:00:44.030356
+-----------------------
+
+--- ALL USERS IN DB ---
+ID: DdUWlKVHSnGgketglyYk91g5XAblccl6 | Email: hilaiba@gmail.com
+ID: test_user_phase_3 | Email: test_user_phase_3@example.com
+ID: gSgGiTekfkDWjpuDlxt3QS81dUdiOSVO | Email: laiba.1@gmail.com
+ID: perfect_test_user | Email: test@example.com
+ID: test-user-123 | Email: test_1177@example.com
+ID: J1JImT8nKI6HYJi22IHK6UjPLCkhSGCf | Email: khan@gmail.com
+ID: 6sWcy9b12ea6WiXVXvc2NXfWEHZdiUWV | Email: laiba123@gmail.com
+ID: 8RJOIQX1rWlGd4OuRjZTd1PeypbGNQ7S | Email: laiba1234@gmail.com
+ID: 251Xkjx0LPMOntQB62SvW29t94qHvh9o | Email: laiba28@gmail.com
+ID: mtdaBdRu1iuFwGImv80OHjXXK4s3yewj | Email: laiba18@gmail.com
+ID: 0X6C96lxvPsGtDoDhcABj5rSVyeZ0zG8 | Email: hi@gmail.com
+ID: qao38nwBl0M1Rq5kDvLCeEPvqFefzAx3 | Email: laiba281@gmail.com
+ID: sbCDOep0JeXH5yPH5DNA1J66kcMSdk5v | Email: laiba298@gmail.com
+ID: uF913xMywTENN0gGaQH1IBlPGeuPIdqj | Email: laiba287@gmail.com
+ID: dwNECFhC5VzzSvG8i6jpOoAPdcXx5eh3 | Email: laiba1235@gmail.com
+ID: 04d4UewpBlTeKT20AsdhJB3eTJgxGgQP | Email: laiba209@gmail.com
+ID: Yfw5Wrd7GAjD3gNvONYGl4BOVgq1tWe3 | Email: laiba145@gmail.com
+ID: fX3L01STpkTiHCE6PmZOhHonrzsNfGF1 | Email: laiba280@gmail.com
+ID: g1CcPh6JsebkzVNDYZwqz2vOc5da94Gk | Email: laibak1345@gmail.com
+ID: m2Phr18AlsaFOqw2XlJkAYVzhOzKFkki | Email: laibakhan123@gmail.com
+ID: yAWAexA8D8MQ3XnQfZoYQknQyRtcPRug | Email: laibakhan145@gmail.com
+ID: 3AEJGkQd6aWeRctER5Q9laqFuVpfmjXb | Email: laiba876@gmail.com
+ID: wvtuoZRZTa3nmLuP8sYqEi7Lr4iMeqLb | Email: laiba987@gmail.com
+ID: hBmfyMb9NvOuspgowxFfTn0l6HXgnX8h | Email: laibakhan167@gmail.com
+ID: 9SneHdKL8HtxAPMiTfPgiMsDX1p2Woed | Email: laiba985@gmail.com
+ID: 6qfijclQJ5R1G6KqHFexNL1K2XlMqzsR | Email: hellolaibakesi@gmail.com
+ID: 8GYJGuHNZkbR1gZRnc8dxRVOvKoaKtXw | Email: laibakesiho@gmail.com
+ID: test_user_66 | Email: test_task_creation_66@example.com
+ID: c37uoO4kGx5wDXBz354BWNHkQDppzVUF | Email: laiba323@gmail.com
+ID: lMOnCCyb4KP3tFcGBFWcBW3EZEP5zqtK | Email: laibakhan@gmail.com
+ID: IiFakpfoedEJV6in2Tr1N24ItRGFuUT0 | Email: laibakhan12@gmail.com
+ID: y9dXqkxdKqS2Dk7dRHdcoPutvyYjvJnT | Email: hello198@gmail.com
+ID: dbaZbITesNULFaTw2nbJwVYmGtSCKnY2 | Email: laiba378@gmail.com
+ID: Cdryhv1tf4kXMAEFpC7I0mno8ZOkuSQS | Email: laiba830@gail.com
+ID: SDxHNOdyvPTEm3KyrS5KLwT4r4iPznmk | Email: laibakhan87@gmail.com
+ID: Bg3WIXXuHcPYQTsIW61k2EphsWgNjNcD | Email: laibacheck@gmail.com
+ID: YsBrNSeuE3REGOM281oD2GVzozAhO3fU | Email: laibacheck1@gmail.com
+ID: XyaU8F0PvkbdH3CwBBpV3jRz4EWYcvad | Email: laibakhan23@gmail.com
+ID: 5W9q2XIBGrbkGqOtd9EOqu0EQaqIyN4J | Email: laibakhancheck@gmail.com
+ID: wxkCaXBAli1SiL59OvZ1H0u8S1cd39GJ | Email: hilaiba12@gmail.com
+ID: sHEf0kf05NUCGJSYIjyyWcU9URurePKW | Email: hilaiba8@gmail.com
+ID: KaDhjh35GH4xNEWouz9f1UJDigjZdFZU | Email: laibakhan945@gmail.com
+ID: bBF1FssAv2oMLEZjRS5H7DZzvUt8lEVD | Email: laiba09@gmail.com
+ID: W3kWRNvf7sQlgNl1kfFbzIxbiemw6DKe | Email: laibakhan94@gmail.com
+-----------------------
+

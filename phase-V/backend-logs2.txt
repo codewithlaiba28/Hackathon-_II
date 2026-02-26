@@ -1,0 +1,100 @@
+﻿INFO:main:Incoming request: POST http://todo-app-backend/api/SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P/chat/stream
+DEBUG:main:Headers: Headers({'cookie': 'better-auth.session_token=ZM0E6BAATQUyvhUiPbH9Z6N7c3AOOdVB.K0W%2BvBLonXCWsSw6FfebObcWSShngvcHhau%2Fv5WgHfc%3D', 'accept-language': 'en-US,en;q=0.9', 'accept-encoding': 'gzip, deflate, br, zstd', 'referer': 'http://localhost:3000/todo/tasks', 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-origin', 'origin': 'http://localhost:3000', 'accept': '*/*', 'sec-ch-ua-mobile': '?0', 'content-type': 'application/json', 'sec-ch-ua': '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'authorization': 'Bearer ZM0E6BAATQUyvhUiPbH9Z6N7c3AOOdVB.K0W+vBLonXCWsSw6FfebObcWSShngvcHhau/v5WgHfc=', 'sec-ch-ua-platform': '"Windows"', 'content-length': '375', 'connection': 'close', 'host': 'todo-app-backend', 'x-forwarded-host': 'localhost:3000'})
+DEBUG: [Stream] Starting generator for user SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P
+INFO:     10.244.0.141:42496 - "POST /api/SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P/chat/stream HTTP/1.1" 200 OK
+INFO:main:Response status: 200
+DEBUG: [Stream] Initializing TodoAgent for user SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P
+DEBUG: TodoAgent using model: llama3.1-8b
+DEBUG: [Stream] Using non-streaming run() with 90s timeout...
+DEBUG: [Agent] Starting MCP server with command: /usr/local/bin/python3.11 -u /app/mcp-servers/todo-tools/src/main.py
+DEBUG: [Agent] MCP source dir: /app/mcp-servers/todo-tools/src
+INFO:main:Incoming request: GET http://10.244.0.146:8000/health/live
+DEBUG:main:Headers: Headers({'host': '10.244.0.146:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+INFO:main:Response status: 200
+INFO:     10.244.0.1:39862 - "GET /health/live HTTP/1.1" 200 OK
+INFO:main:Incoming request: GET http://10.244.0.146:8000/health/ready
+DEBUG:main:Headers: Headers({'host': '10.244.0.146:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+DEBUG:httpcore.connection:connect_tcp.started host='localhost' port=3500 local_address='0.0.0.0' timeout=2.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7d867ebcf290>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Date', b'Thu, 26 Feb 2026 08:59:16 GMT')])
+INFO:httpx:HTTP Request: GET http://localhost:3500/v1.0/healthz "HTTP/1.1 204 No Content"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+INFO:main:Response status: 200
+INFO:     10.244.0.1:39876 - "GET /health/ready HTTP/1.1" 200 OK
+DEBUG: Running agent turn (attempt 1) with 5 messages...
+DEBUG:openai.agents:Tracing is disabled. Not creating trace Agent workflow
+DEBUG:openai.agents:Setting current trace: no-op
+DEBUG:openai.agents:Tracing is disabled. Not creating span <agents.tracing.span_data.MCPListToolsSpanData object at 0x7d867ebbf390>
+DEBUG:openai.agents:Tracing is disabled. Not creating span <agents.tracing.span_data.AgentSpanData object at 0x7d867ebb2b10>
+DEBUG:openai.agents:Running agent Todo Assistant (turn 1)
+DEBUG:openai.agents:No conversation_id available for request
+DEBUG:openai.agents:Tracing is disabled. Not creating span <agents.tracing.span_data.GenerationSpanData object at 0x7d867ebb2330>
+DEBUG:openai.agents:Calling LLM
+DEBUG:openai._base_client:Request options: {'method': 'post', 'url': '/chat/completions', 'headers': {'User-Agent': 'Agents/Python 0.8.1'}, 'files': None, 'idempotency_key': 'stainless-python-retry-633d803e-0cb7-4349-9d24-e1fd3f2c52f3', 'content': None, 'json_data': {'messages': [{'content': 'You are a helpful todo assistant. Current date: 2026-02-16 (Sunday).\n\n### CORE RULES\n- NEVER mention user ID \'SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P\' in responses\n- NEVER output JSON or tool arguments in your responses\n- MANDATORY: Always include a short confirmation text (e.g. "Γ£à Task added") even after tool calls.\n- Keep responses SHORT (1-2 sentences max)\n\n### ADDING TASKS - CRITICAL EXAMPLES\nUser: "Add buy milk"\nΓåÆ add_task(user_id, "Buy milk")\n\nUser: "Add buy biryani due Tuesday 9pm priority high"\nΓåÆ add_task(user_id, "Buy biryani", priority="high", due_date="2026-02-18T21:00:00")\n\nUser: "Add task buy samosas recurring daily due Feb 20 at 8pm priority high description get from shop"\nΓåÆ add_task(user_id, "Buy samosas", description="get from shop", priority="high", due_date="2026-02-20T20:00:00", is_recurring=True, recurrence_pattern="daily")\n\n### DATE PARSING - MUST FOLLOW\n**ΓÜá∩╕Å CRITICAL: IF USER MENTIONS A DATE/TIME, YOU MUST INCLUDE due_date PARAMETER ΓÜá∩╕Å**\n\nQuick reference (today = 2026-02-16):\n- "Thursday 8pm" ΓåÆ "2026-02-20T20:00:00" (Feb 20 is Thursday)\n- "Tuesday 9pm" ΓåÆ "2026-02-18T21:00:00"\n- "02/17/2026 9pm" or "Feb 17 9pm" ΓåÆ "2026-02-17T21:00:00"  \n- "tomorrow 3pm" ΓåÆ "2026-02-17T15:00:00"\n- "Wednesday" (no time) ΓåÆ "2026-02-19T09:00:00"\n\nTime conversions: 9pm=21:00, 8pm=20:00, 7pm=19:00, 3pm=15:00, 10am=10:00\n\nDays this week:\nMon=17, Tue=18, Wed=19, Thu=20, Fri=21, Sat=22, Sun=23\n\n### PRIORITY\n- If user says "high/medium/low priority", use that value\n- Default: "medium"\n\n### RECURRING TASKS\n- If user says "daily/weekly/monthly", set is_recurring=True and recurrence_pattern="daily"/"weekly"/"monthly"\n\n### ΓÜá∩╕Å DUPLICATE CHECK - MANDATORY BEFORE ADDING ΓÜá∩╕Å\n**YOU MUST FOLLOW THESE STEPS EXACTLY:**\n\n1. BEFORE calling add_task, ALWAYS call list_tasks(user_id, "all") FIRST\n2. Check if ANY task has the EXACT SAME title (case-insensitive)\n3. If EXACT match found ΓåÆ DO NOT ADD, say "≡ƒÄ» That\'s already on your list!"\n4. If NO exact match ΓåÆ ADD THE TASK\n\n**Examples:**\n- Existing: "Call mom" ΓåÆ User says "call mom" ΓåÆ DON\'T ADD (exact match)\n- Existing: "Call mom" ΓåÆ User says "Call dad" ΓåÆ ADD IT (different)\n- Existing: "Buy milk" ΓåÆ User says "Buy biryani" ΓåÆ ADD IT (different)\n\n**ΓÜá∩╕Å NEVER ADD A TASK WITHOUT CHECKING FIRST ΓÜá∩╕Å**\n\n### OTHER COMMANDS\n- "Show tasks" ΓåÆ list_tasks(user_id, "all")\n- "Complete task 5" ΓåÆ complete_task(user_id, 5)\n- "Delete task 3" ΓåÆ delete_task(user_id, 3)\n\n### RESPONSE FORMAT\n- Use emojis: Γ£à ≡ƒùæ∩╕Å ≡ƒô¥ ≡ƒÄ»\n- Lists: use markdown bullets (-)\n- Group by **Pending** and **Completed**\n- NEVER show database IDs or technical details\n\nALWAYS use user_id \'SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P\' for all tool calls.', 'role': 'system'}, {'role': 'user', 'content': 'show my all task'}, {'role': 'assistant', 'content': '≡ƒô¥ **Pending:**\n- Buy milk\n- Buy biryani\n- Buy samosas\n\n**Completed:**\n- Call mom\n- Call dad'}, {'role': 'user', 'content': 'hi'}, {'role': 'assistant', 'content': '≡ƒæï Hi there!'}, {'role': 'user', 'content': 'Add a new task with the following details:  Task Title: Complete API Integration  Priority: High  Due Date: 03/05/2026 05:00 PM  Tags: work, backend, urgent  Recurring Task: No  Description: Connect frontend with backend APIs and test all endpoints properly.  Make sure all fields are filled correctly and the task is saved in the database.'}], 'model': 'llama3.1-8b', 'tools': [{'type': 'function', 'function': {'name': 'add_task', 'description': 'Create a new task with optional priority, due date, and recurrence settings', 'parameters': {'properties': {'user_id': {'title': 'User Id', 'type': 'string'}, 'title': {'title': 'Title', 'type': 'string'}, 'description': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Description'}, 'priority': {'default': 'medium', 'title': 'Priority', 'type': 'string'}, 'due_date': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Due Date'}, 'is_recurring': {'default': False, 'title': 'Is Recurring', 'type': 'boolean'}, 'recurrence_pattern': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Recurrence Pattern'}}, 'required': ['user_id', 'title'], 'title': 'add_taskArguments', 'type': 'object'}, 'strict': False}}, {'type': 'function', 'function': {'name': 'list_tasks', 'description': 'Retrieve tasks from the list', 'parameters': {'properties': {'user_id': {'title': 'User Id', 'type': 'string'}, 'status': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': 'all', 'title': 'Status'}}, 'required': ['user_id'], 'title': 'list_tasksArguments', 'type': 'object'}, 'strict': False}}, {'type': 'function', 'function': {'name': 'update_task', 'description': 'Modify task title or description', 'parameters': {'properties': {'user_id': {'title': 'User Id', 'type': 'string'}, 'task_id': {'title': 'Task Id', 'type': 'integer'}, 'title': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Title'}, 'description': {'anyOf': [{'type': 'string'}, {'type': 'null'}], 'default': None, 'title': 'Description'}}, 'required': ['user_id', 'task_id'], 'title': 'update_taskArguments', 'type': 'object'}, 'strict': False}}, {'type': 'function', 'function': {'name': 'complete_task', 'description': 'Mark a task as complete', 'parameters': {'properties': {'user_id': {'title': 'User Id', 'type': 'string'}, 'task_id': {'title': 'Task Id', 'type': 'integer'}}, 'required': ['user_id', 'task_id'], 'title': 'complete_taskArguments', 'type': 'object'}, 'strict': False}}, {'type': 'function', 'function': {'name': 'delete_task', 'description': 'Remove a task from the list', 'parameters': {'properties': {'user_id': {'title': 'User Id', 'type': 'string'}, 'task_id': {'title': 'Task Id', 'type': 'integer'}}, 'required': ['user_id', 'task_id'], 'title': 'delete_taskArguments', 'type': 'object'}, 'strict': False}}]}}
+DEBUG:openai._base_client:Sending HTTP Request: POST https://api.cerebras.ai/v1/chat/completions
+DEBUG:httpcore.connection:connect_tcp.started host='api.cerebras.ai' port=443 local_address='0.0.0.0' timeout=30.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7d867ec1d1d0>
+DEBUG:httpcore.connection:start_tls.started ssl_context=<ssl.SSLContext object at 0x7d867ed07e30> server_hostname='api.cerebras.ai' timeout=30.0
+DEBUG:httpcore.connection:start_tls.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7d867ec18a90>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_headers.complete
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Thu, 26 Feb 2026 08:59:46 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'set-cookie', b'__cf_bm=fkVan9JMGk_17pMdMlOp65tgZdm7qxk0PtDVYyjtDYg-1772096385.343909-1.0.1.1-otQsxwptKnWjtbU.h5EaJzeIkuAMl.fGV6JCI8gOkoUnKix0fyzZhWbBVy3LUE0Ct5qssB20USVu9g1XRnoeRz6ri_oR9N.LPIfM1UA462bvqq.Ps46b7YudAuTA74hT; HttpOnly; Secure; Path=/; Domain=cerebras-sandbox.net; Expires=Thu, 26 Feb 2026 09:29:46 GMT'), (b'Server', b'cloudflare'), (b'x-request-id', b'9d3e3f886a5e90a1-SJC'), (b'x-ratelimit-remaining-requests-minute', b'29'), (b'x-ratelimit-remaining-requests-hour', b'0'), (b'x-ratelimit-remaining-requests-day', b'14399'), (b'x-ratelimit-remaining-tokens-minute', b'51808'), (b'x-ratelimit-remaining-tokens-hour', b'0'), (b'x-ratelimit-remaining-tokens-day', b'985124'), (b'x-ratelimit-limit-requests-minute', b'30'), (b'x-ratelimit-limit-requests-hour', b'900'), (b'x-ratelimit-limit-requests-day', b'14400'), (b'x-ratelimit-limit-tokens-minute', b'60000'), (b'x-ratelimit-limit-tokens-hour', b'1000000'), (b'x-ratelimit-limit-tokens-day', b'1000000'), (b'inference-id', b'chatcmpl-5af0357e-6385-4630-a741-af619eeea386'), (b'referrer-policy', b'strict-origin-when-cross-origin'), (b'x-content-type-options', b'nosniff'), (b'strict-transport-security', b'max-age=3600; includeSubDomains'), (b'cf-cache-status', b'DYNAMIC'), (b'Content-Encoding', b'gzip'), (b'CF-RAY', b'9d3e3f886a5e90a1-KHI'), (b'alt-svc', b'h3=":443"; ma=86400')])
+INFO:httpx:HTTP Request: POST https://api.cerebras.ai/v1/chat/completions "HTTP/1.1 200 OK"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'POST']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:openai._base_client:HTTP Response: POST https://api.cerebras.ai/v1/chat/completions "200 OK" Headers({'date': 'Thu, 26 Feb 2026 08:59:46 GMT', 'content-type': 'application/json', 'transfer-encoding': 'chunked', 'connection': 'keep-alive', 'set-cookie': '__cf_bm=fkVan9JMGk_17pMdMlOp65tgZdm7qxk0PtDVYyjtDYg-1772096385.343909-1.0.1.1-otQsxwptKnWjtbU.h5EaJzeIkuAMl.fGV6JCI8gOkoUnKix0fyzZhWbBVy3LUE0Ct5qssB20USVu9g1XRnoeRz6ri_oR9N.LPIfM1UA462bvqq.Ps46b7YudAuTA74hT; HttpOnly; Secure; Path=/; Domain=cerebras-sandbox.net; Expires=Thu, 26 Feb 2026 09:29:46 GMT', 'server': 'cloudflare', 'x-request-id': '9d3e3f886a5e90a1-SJC', 'x-ratelimit-remaining-requests-minute': '29', 'x-ratelimit-remaining-requests-hour': '0', 'x-ratelimit-remaining-requests-day': '14399', 'x-ratelimit-remaining-tokens-minute': '51808', 'x-ratelimit-remaining-tokens-hour': '0', 'x-ratelimit-remaining-tokens-day': '985124', 'x-ratelimit-limit-requests-minute': '30', 'x-ratelimit-limit-requests-hour': '900', 'x-ratelimit-limit-requests-day': '14400', 'x-ratelimit-limit-tokens-minute': '60000', 'x-ratelimit-limit-tokens-hour': '1000000', 'x-ratelimit-limit-tokens-day': '1000000', 'inference-id': 'chatcmpl-5af0357e-6385-4630-a741-af619eeea386', 'referrer-policy': 'strict-origin-when-cross-origin', 'x-content-type-options': 'nosniff', 'strict-transport-security': 'max-age=3600; includeSubDomains', 'cf-cache-status': 'DYNAMIC', 'content-encoding': 'gzip', 'cf-ray': '9d3e3f886a5e90a1-KHI', 'alt-svc': 'h3=":443"; ma=86400'})
+DEBUG:openai._base_client:request_id: 9d3e3f886a5e90a1-SJC
+DEBUG:openai.agents:Received model response
+DEBUG:openai.agents:Processing output item type=message class=ResponseOutputMessage
+DEBUG:openai.agents:Resetting current trace
+DEBUG: Agent finished turn. Result items: 1
+Extracted 0 tool calls.
+DEBUG: Stripping leaked JSON tool block: {"name": "add_task", "arguments": {"user_id": "SHJ...
+DEBUG: Agent Final Output (Cleaned): Γ£à Task added
+DEBUG: [Stream] Agent run completed. Response: Γ£à Task added...
+DEBUG: [Stream] Response saved to DB for conv 26
+INFO:main:Incoming request: GET http://todo-app-backend/api/SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P/tasks?priority=high&sort_by=created_at&order=desc
+DEBUG:main:Headers: Headers({'cookie': 'better-auth.session_token=ZM0E6BAATQUyvhUiPbH9Z6N7c3AOOdVB.K0W%2BvBLonXCWsSw6FfebObcWSShngvcHhau%2Fv5WgHfc%3D', 'accept-language': 'en-US,en;q=0.9', 'accept-encoding': 'gzip, deflate, br, zstd', 'referer': 'http://localhost:3000/todo/tasks', 'sec-fetch-dest': 'empty', 'sec-fetch-mode': 'cors', 'sec-fetch-site': 'same-origin', 'accept': '*/*', 'sec-ch-ua-mobile': '?0', 'content-type': 'application/json', 'sec-ch-ua': '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 'authorization': 'Bearer ZM0E6BAATQUyvhUiPbH9Z6N7c3AOOdVB.K0W+vBLonXCWsSw6FfebObcWSShngvcHhau/v5WgHfc=', 'sec-ch-ua-platform': '"Windows"', 'connection': 'close', 'host': 'todo-app-backend', 'x-forwarded-host': 'localhost:3000'})
+DEBUG:auth:JWKS JWT verification failed: Error decoding token headers.
+INFO:routers.tasks:Fetching tasks for user ID: SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P
+INFO:routers.tasks:Retrieved 0 tasks for user SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P
+INFO:main:Response status: 200
+INFO:     10.244.0.141:37286 - "GET /api/SHJ9GkojfdgyHPoFxX0sjqZy6Wwork8P/tasks?priority=high&sort_by=created_at&order=desc HTTP/1.1" 200 OK
+INFO:     10.244.0.1:33076 - "GET /health/live HTTP/1.1" 200 OK
+INFO:main:Incoming request: GET http://10.244.0.146:8000/health/live
+DEBUG:main:Headers: Headers({'host': '10.244.0.146:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+INFO:main:Response status: 200
+INFO:main:Incoming request: GET http://10.244.0.146:8000/health/ready
+DEBUG:main:Headers: Headers({'host': '10.244.0.146:8000', 'user-agent': 'kube-probe/1.35', 'accept': '*/*', 'connection': 'close'})
+DEBUG:httpcore.connection:connect_tcp.started host='localhost' port=3500 local_address='0.0.0.0' timeout=2.0 socket_options=None
+DEBUG:httpcore.connection:connect_tcp.complete return_value=<httpcore._backends.anyio.AnyIOStream object at 0x7d867ebb7e10>
+DEBUG:httpcore.http11:send_request_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_headers.complete
+INFO:     10.244.0.1:33092 - "GET /health/ready HTTP/1.1" 200 OK
+DEBUG:httpcore.http11:send_request_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:send_request_body.complete
+DEBUG:httpcore.http11:receive_response_headers.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_headers.complete return_value=(b'HTTP/1.1', 204, b'No Content', [(b'Date', b'Thu, 26 Feb 2026 08:59:46 GMT')])
+INFO:httpx:HTTP Request: GET http://localhost:3500/v1.0/healthz "HTTP/1.1 204 No Content"
+DEBUG:httpcore.http11:receive_response_body.started request=<Request [b'GET']>
+DEBUG:httpcore.http11:receive_response_body.complete
+DEBUG:httpcore.http11:response_closed.started
+DEBUG:httpcore.http11:response_closed.complete
+DEBUG:httpcore.connection:close.started
+DEBUG:httpcore.connection:close.complete
+INFO:main:Response status: 200

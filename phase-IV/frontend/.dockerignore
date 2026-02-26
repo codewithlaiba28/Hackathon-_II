@@ -1,0 +1,35 @@
+# Dependencies
+node_modules
+
+# Testing
+coverage
+.nyc_output
+
+# IDEs
+.vscode
+.idea
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Next.js
+.next
+out
+
+# Git
+.git
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Build outputs
+dist
+build
