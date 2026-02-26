@@ -1,0 +1,166 @@
+Name:             backend-fb6d4b44b-7jcpc
+Namespace:        todo-app
+Priority:         0
+Service Account:  default
+Node:             minikube/192.168.49.2
+Start Time:       Wed, 25 Feb 2026 00:30:16 +0500
+Labels:           app=backend
+                  dapr.io/app-id=backend
+                  dapr.io/metrics-enabled=true
+                  dapr.io/sidecar-injected=true
+                  pod-template-hash=fb6d4b44b
+Annotations:      dapr.io/app-id: backend
+                  dapr.io/app-port: 8000
+                  dapr.io/config: appconfig
+                  dapr.io/enabled: true
+                  dapr.io/log-level: info
+                  dapr.io/sidecar-listen-addresses: 0.0.0.0
+                  kubectl.kubernetes.io/restartedAt: 2026-02-24T23:49:26+05:00
+Status:           Running
+IP:               10.244.1.54
+IPs:
+  IP:           10.244.1.54
+Controlled By:  ReplicaSet/backend-fb6d4b44b
+Containers:
+  backend:
+    Container ID:   docker://6baef53114c0010dca799384b32ebf672949f4760544d4883707401ba5853f7f
+    Image:          todo-backend:latest
+    Image ID:       docker://sha256:b4fe9ad156b25d7b1022158b965b8d3fd886ad1497bd91525a76b06531464ef9
+    Port:           8000/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Wed, 25 Feb 2026 00:32:42 +0500
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    137
+      Started:      Wed, 25 Feb 2026 00:30:29 +0500
+      Finished:     Wed, 25 Feb 2026 00:32:39 +0500
+    Ready:          True
+    Restart Count:  1
+    Liveness:       http-get http://:8000/health/live delay=60s timeout=1s period=15s #success=1 #failure=3
+    Readiness:      http-get http://:8000/health/ready delay=45s timeout=5s period=15s #success=1 #failure=3
+    Environment:
+      DATABASE_URL:        <set to the key 'DATABASE_URL' in secret 'app-secrets'>        Optional: false
+      CEREBRAS_API_KEY:    <set to the key 'CEREBRAS_API_KEY' in secret 'app-secrets'>    Optional: false
+      BETTER_AUTH_SECRET:  <set to the key 'BETTER_AUTH_SECRET' in secret 'app-secrets'>  Optional: false
+      CEREBRAS_BASE_URL:   https://api.cerebras.ai/v1
+      CEREBRAS_MODEL:      llama3.1-8b
+      ENABLE_DAPR:         true
+      DAPR_PUBSUB_NAME:    pubsub
+      APP_ENV:             production
+      DAPR_HTTP_PORT:      3500
+      DAPR_GRPC_PORT:      50001
+      APP_PROTOCOL:        http
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kmgnk (ro)
+  daprd:
+    Container ID:  docker://24b49dbb712b53d2499a1c908c46244d5f5831a5357b56d1e0aee760fc14a09d
+    Image:         ghcr.io/dapr/daprd:1.16.9
+    Image ID:      docker-pullable://ghcr.io/dapr/daprd@sha256:40080174f5f3cce6cfd1c2b7ad65e4067c1804e141e4b587aba05565494a191f
+    Ports:         3500/TCP (dapr-http), 50001/TCP (dapr-grpc), 50002/TCP (dapr-internal), 9090/TCP (dapr-metrics)
+    Host Ports:    0/TCP (dapr-http), 0/TCP (dapr-grpc), 0/TCP (dapr-internal), 0/TCP (dapr-metrics)
+    Args:
+      /daprd
+      --dapr-http-port
+      3500
+      --dapr-grpc-port
+      50001
+      --dapr-internal-grpc-port
+      50002
+      --dapr-listen-addresses
+      0.0.0.0
+      --dapr-public-port
+      3501
+      --app-id
+      backend
+      --app-protocol
+      http
+      --log-level
+      info
+      --dapr-graceful-shutdown-seconds
+      -1
+      --mode
+      kubernetes
+      --control-plane-address
+      dapr-api.dapr-system.svc.cluster.local:443
+      --sentry-address
+      dapr-sentry.dapr-system.svc.cluster.local:443
+      --app-port
+      8000
+      --enable-metrics
+      --metrics-port
+      9090
+      --config
+      appconfig
+      --placement-host-address
+      dapr-placement-server.dapr-system.svc.cluster.local:50005
+      --enable-mtls
+    State:          Running
+      Started:      Wed, 25 Feb 2026 00:33:18 +0500
+    Last State:     Terminated
+      Reason:       Error
+      Exit Code:    1
+      Started:      Wed, 25 Feb 2026 00:32:45 +0500
+      Finished:     Wed, 25 Feb 2026 00:32:54 +0500
+    Ready:          True
+    Restart Count:  5
+    Liveness:       tcp-socket :3501 delay=3s timeout=3s period=6s #success=1 #failure=3
+    Readiness:      http-get http://:3501/v1.0/healthz delay=3s timeout=3s period=6s #success=1 #failure=3
+    Environment:
+      NAMESPACE:                          todo-app
+      DAPR_TRUST_ANCHORS:                 -----BEGIN CERTIFICATE-----
+                                          MIIBcDCCARagAwIBAgIQAtsYk4OQ2rv6xAKfVihKKzAKBggqhkjOPQQDAjAYMRYw
+                                          FAYDVQQKEw1jbHVzdGVyLmxvY2FsMB4XDTI2MDIyMzA4MDI0NVoXDTI3MDIyMzA4
+                                          MTc0NVowGDEWMBQGA1UEChMNY2x1c3Rlci5sb2NhbDBZMBMGByqGSM49AgEGCCqG
+                                          SM49AwEHA0IABLrghyWFJQdGL3QJQjOCH5oPLvHJtQbK7O1xGzj/5t8c3Y2ijuHu
+                                          ivYEbo0FCwL3dYyZ16B3G0/30R2AUoMtzG6jQjBAMA4GA1UdDwEB/wQEAwICpDAP
+                                          BgNVHRMBAf8EBTADAQH/MB0GA1UdDgQWBBTBTHW6eaVx4LK0eV5kRc1X/44/uDAK
+                                          BggqhkjOPQQDAgNIADBFAiEA2dIwKLbIkRtVGbIY1jPNN8Xt8MKHvaaPCiB75hE+
+                                          QOgCIGO0zlRaCzWpN6mRZoe3TKGbPOo3X+9LIchSsLaJOOtz
+                                          -----END CERTIFICATE-----
+                                          
+      POD_NAME:                           backend-fb6d4b44b-7jcpc (v1:metadata.name)
+      DAPR_CONTROLPLANE_NAMESPACE:        dapr-system
+      DAPR_CONTROLPLANE_TRUST_DOMAIN:     cluster.local
+      DAPR_SCHEDULER_HOST_ADDRESS:        dapr-scheduler-server-0.dapr-scheduler-server.dapr-system.svc.cluster.local:50006,dapr-scheduler-server-1.dapr-scheduler-server.dapr-system.svc.cluster.local:50006,dapr-scheduler-server-2.dapr-scheduler-server.dapr-system.svc.cluster.local:50006
+      DAPR_SCHEDULER_HOST_ADDRESS_DNS_A:  dapr-scheduler-server-a.dapr-system.svc.cluster.local:443
+    Mounts:
+      /var/run/secrets/dapr.io/sentrytoken from dapr-identity-token (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-kmgnk (ro)
+Conditions:
+  Type                        Status
+  PodReadyToStartContainers   True 
+  Initialized                 True 
+  Ready                       True 
+  ContainersReady             True 
+  PodScheduled                True 
+Volumes:
+  kube-api-access-kmgnk:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    Optional:                false
+    DownwardAPI:             true
+  dapr-identity-token:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  7200
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason     Age                     From               Message
+  ----     ------     ----                    ----               -------
+  Normal   Scheduled  4m18s                   default-scheduler  Successfully assigned todo-app/backend-fb6d4b44b-7jcpc to minikube
+  Warning  Unhealthy  3m2s                    kubelet            spec.containers{backend}: Liveness probe failed: Get "http://10.244.1.54:8000/health/live": dial tcp 10.244.1.54:8000: connect: connection refused
+  Normal   Killing    2m59s (x2 over 3m35s)   kubelet            spec.containers{daprd}: Container daprd failed liveness probe, will be restarted
+  Warning  Unhealthy  2m59s (x4 over 3m20s)   kubelet            spec.containers{backend}: Readiness probe failed: Get "http://10.244.1.54:8000/health/ready": dial tcp 10.244.1.54:8000: connect: connection refused
+  Warning  Unhealthy  2m59s (x6 over 3m47s)   kubelet            spec.containers{daprd}: Liveness probe failed: dial tcp 10.244.1.54:3501: connect: connection refused
+  Warning  Unhealthy  2m53s (x14 over 3m51s)  kubelet            spec.containers{daprd}: Readiness probe failed: Get "http://10.244.1.54:3501/v1.0/healthz": dial tcp 10.244.1.54:3501: connect: connection refused
+  Normal   Killing    2m27s                   kubelet            spec.containers{backend}: Container backend failed liveness probe, will be restarted
+  Normal   Pulled     114s (x2 over 4m7s)     kubelet            spec.containers{backend}: Container image "todo-backend:latest" already present on machine and can be accessed by the pod
+  Normal   Created    112s (x2 over 4m5s)     kubelet            spec.containers{backend}: Container created
+  Normal   Started    111s (x2 over 4m2s)     kubelet            spec.containers{backend}: Container started
+  Normal   Created    110s (x5 over 4m)       kubelet            spec.containers{daprd}: Container created
+  Normal   Started    107s (x5 over 3m54s)    kubelet            spec.containers{daprd}: Container started
+  Normal   Pulled     80s (x6 over 4m2s)      kubelet            spec.containers{daprd}: Container image "ghcr.io/dapr/daprd:1.16.9" already present on machine and can be accessed by the pod
